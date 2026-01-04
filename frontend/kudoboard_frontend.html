@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KudoVibe - Gen Z Kudoboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-buttons button {
+            margin-left: 1rem;
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-library {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-join {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-library:hover, .btn-join:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Main Landing */
+        .landing {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding-top: 80px;
+        }
+
+        .landing-content {
+            text-align: center;
+            color: white;
+            max-width: 800px;
+            padding: 2rem;
+        }
+
+        .landing h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.8s;
+        }
+
+        .landing p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s;
+        }
+
+        .cta-button {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 30px;
+            background: white;
+            color: #667eea;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: fadeInUp 1.2s;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        /* Library Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-header h2 {
+            font-size: 2rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .aesthetic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .aesthetic-card {
+            padding: 2rem;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            border: 3px solid transparent;
+        }
+
+        .aesthetic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .aesthetic-card.selected {
+            border-color: #667eea;
+        }
+
+        .aesthetic-card h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        .professional { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        .dark-academia { background: linear-gradient(135deg, #2c1810 0%, #4a2c1a 100%); color: #d4af37; }
+        .cottage-core { background: linear-gradient(135deg, #ffeaa7 0%, #dfe6e9 100%); }
+        .tech-neon { background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%); color: #00ff88; }
+        .retro-90s { background: linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%); }
+
+        .form-group {
+            margin: 1.5rem 0;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .create-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+
+        /* Board Page */
+        .board-page {
+            display: none;
+            min-height: 100vh;
+            padding: 100px 2rem 2rem;
+        }
+
+        .board-page.active {
+            display: block;
+        }
+
+        .board-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .share-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .share-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .share-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .share-item h4 {
+            margin-bottom: 0.5rem;
+            color: #667eea;
+        }
+
+        .link-display {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .link-display input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+        }
+
+        .copy-btn {
+            padding: 0.5rem 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .comments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            padding: 2rem 0;
+        }
+
+        .comment-card {
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            animation: fadeIn 0.5s;
+        }
+
+        .comment-author {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .comment-message {
+            line-height: 1.6;
+        }
+
+        .add-comment-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+
+        .add-comment-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .comment-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.2);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">KudoVibe ✨</div>
+        <div class="nav-buttons">
+            <button class="btn-library" onclick="openLibrary()">📚 Library</button>
+            <button class="btn-join" onclick="openJoinModal()">🔑 Join with Code</button>
+        </div>
+    </nav>
+
+    <!-- Landing Page -->
+    <section class="landing" id="landing">
+        <div class="landing-content">
+            <h1>Send Love, Gen Z Style</h1>
+            <p>Create aesthetic kudoboards that slap. No cap. 💅</p>
+            <button class="cta-button" onclick="openLibrary()">Create Your Vibe ✨</button>
+        </div>
+    </section>
+
+    <!-- Library Modal -->
+    <div class="modal" id="libraryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Choose Your Aesthetic</h2>
+                <button class="close-modal" onclick="closeLibrary()">&times;</button>
+            </div>
+            
+            <div class="aesthetic-grid">
+                <div class="aesthetic-card professional" onclick="selectAesthetic('professional')">
+                    <h3>💼 Professional Minimalist</h3>
+                    <p>Clean, crisp, corporate chic</p>
+                </div>
+                <div class="aesthetic-card dark-academia" onclick="selectAesthetic('dark-academia')">
+                    <h3>📚 Dark Academia</h3>
+                    <p>Moody, scholarly vibes</p>
+                </div>
+                <div class="aesthetic-card cottage-core" onclick="selectAesthetic('cottage-core')">
+                    <h3>🌸 Cottage Core</h3>
+                    <p>Soft, dreamy, pastoral</p>
+                </div>
+                <div class="aesthetic-card tech-neon" onclick="selectAesthetic('tech-neon')">
+                    <h3>⚡ Tech Neon</h3>
+                    <p>Cyberpunk energy</p>
+                </div>
+                <div class="aesthetic-card retro-90s" onclick="selectAesthetic('retro-90s')">
+                    <h3>🎨 90s Retro</h3>
+                    <p>Totally radical throwback</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Who is this for? 💖</label>
+                <input type="text" id="recipientName" placeholder="Their name...">
+            </div>
+
+            <button class="create-button" onclick="createBoard()">Create KudoVibe</button>
+        </div>
+    </div>
+
+    <!-- Join Modal -->
+    <div class="modal" id="joinModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Join Board</h2>
+                <button class="close-modal" onclick="closeJoinModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Enter Code</label>
+                <input type="text" id="joinCode" placeholder="ABC123" style="text-transform: uppercase;">
+            </div>
+            <button class="create-button" onclick="joinBoard()">Join 🚀</button>
+        </div>
+    </div>
+
+    <!-- Board Page -->
+    <div class="board-page" id="boardPage">
+        <div class="board-header">
+            <h1 id="boardTitle">KudoVibe Board</h1>
+        </div>
+
+        <div class="share-section" id="creatorView">
+            <h3>🎉 Your Board is Ready!</h3>
+            <div class="share-links">
+                <div class="share-item">
+                    <h4>📤 Share with Contributors</h4>
+                    <div class="link-display">
+                        <input type="text" id="contributorLink" readonly>
+                        <button class="copy-btn" onclick="copyLink('contributorLink')">Copy</button>
+                    </div>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">Code: <strong id="boardCode"></strong></p>
+                </div>
+                <div class="share-item">
+                    <h4>👀 Your View Link</h4>
+                    <div class="link-display">
+                        <input type="text" id="viewLink" readonly>
+                        <button class="copy-btn" onclick="copyLink('viewLink')">Copy</button>
+                    </div>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Use this to view & download all messages</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="comment-form" id="commentForm">
+            <h3>Add Your Message 💌</h3>
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="commentAuthor" placeholder="Anonymous">
+            </div>
+            <div class="form-group">
+                <label>Pick a Color</label>
+                <div class="color-picker" id="colorPicker"></div>
+            </div>
+            <div class="form-group">
+                <label>Your Message</label>
+                <textarea id="commentMessage" placeholder="Say something nice..."></textarea>
+            </div>
+            <button class="create-button" onclick="addComment()">Post Message 🚀</button>
+        </div>
+
+        <div class="comments-grid" id="commentsGrid"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let currentBoard = null;
+        let selectedAesthetic = 'professional';
+        let selectedColor = '#FFD700';
+        let isCreator = false;
+
+        const aestheticColors = {
+            'professional': ['#E8EAF6', '#C5CAE9', '#9FA8DA', '#7986CB', '#5C6BC0'],
+            'dark-academia': ['#D4AF37', '#C19A6B', '#8B7355', '#654321', '#3E2723'],
+            'cottage-core': ['#FFE4E1', '#FFB6C1', '#FFC0CB', '#FFDAB9', '#F0E68C'],
+            'tech-neon': ['#00FF88', '#00D9FF', '#FF00FF', '#FFFF00', '#FF0080'],
+            'retro-90s': ['#FF6B9D', '#C06C84', '#FFA07A', '#FFD700', '#87CEEB']
+        };
+
+        function openLibrary() {
+            document.getElementById('libraryModal').classList.add('active');
+        }
+
+        function closeLibrary() {
+            document.getElementById('libraryModal').classList.remove('active');
+        }
+
+        function openJoinModal() {
+            document.getElementById('joinModal').classList.add('active');
+        }
+
+        function closeJoinModal() {
+            document.getElementById('joinModal').classList.remove('active');
+        }
+
+        function selectAesthetic(aesthetic) {
+            selectedAesthetic = aesthetic;
+            document.querySelectorAll('.aesthetic-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.target.closest('.aesthetic-card').classList.add('selected');
+        }
+
+        async function createBoard() {
+            const recipientName = document.getElementById('recipientName').value || 'Someone Special';
+            
+            try {
+                const response = await fetch(`${API_URL}/boards`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ aesthetic: selectedAesthetic, recipient_name: recipientName })
+                });
+                
+                currentBoard = await response.json();
+                isCreator = true;
+                closeLibrary();
+                showBoard();
+            } catch (error) {
+                alert('Error creating board. Make sure Flask server is running!');
+            }
+        }
+
+        async function joinBoard() {
+            const code = document.getElementById('joinCode').value.toUpperCase();
+            
+            try {
+                const response = await fetch(`${API_URL}/boards/code/${code}`);
+                const board = await response.json();
+                
+                currentBoard = { id: board.id, aesthetic: board.aesthetic, recipient_name: board.recipient_name };
+                isCreator = false;
+                closeJoinModal();
+                showBoard();
+                loadComments();
+            } catch (error) {
+                alert('Invalid code!');
+            }
+        }
+
+        function showBoard() {
+            document.getElementById('landing').style.display = 'none';
+            document.getElementById('boardPage').classList.add('active');
+            document.getElementById('boardTitle').textContent = `Board for ${currentBoard.recipient_name}`;
+            
+            applyAesthetic(currentBoard.aesthetic);
+            setupColorPicker();
+            
+            if (isCreator) {
+                document.getElementById('creatorView').classList.remove('hidden');
+                document.getElementById('contributorLink').value = window.location.origin + currentBoard.contributor_link;
+                document.getElementById('viewLink').value = window.location.origin + currentBoard.view_link;
+                document.getElementById('boardCode').textContent = currentBoard.join_code;
+            } else {
+                document.getElementById('creatorView').classList.add('hidden');
+            }
+        }
+
+        function applyAesthetic(aesthetic) {
+            const boardPage = document.getElementById('boardPage');
+            const aestheticMap = {
+                'professional': 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                'dark-academia': 'linear-gradient(135deg, #2c1810 0%, #4a2c1a 100%)',
+                'cottage-core': 'linear-gradient(135deg, #ffeaa7 0%, #dfe6e9 100%)',
+                'tech-neon': 'linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%)',
+                'retro-90s': 'linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%)'
+            };
+            boardPage.style.background = aestheticMap[aesthetic];
+        }
+
+        function setupColorPicker() {
+            const colors = aestheticColors[currentBoard.aesthetic];
+            const picker = document.getElementById('colorPicker');
+            picker.innerHTML = '';
+            
+            colors.forEach((color, i) => {
+                const div = document.createElement('div');
+                div.className = 'color-option' + (i === 0 ? ' selected' : '');
+                div.style.backgroundColor = color;
+                div.onclick = () => selectColor(color, div);
+                picker.appendChild(div);
+            });
+            
+            selectedColor = colors[0];
+        }
+
+        function selectColor(color, element) {
+            selectedColor = color;
+            document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        async function addComment() {
+            const author = document.getElementById('commentAuthor').value || 'Anonymous';
+            const message = document.getElementById('commentMessage').value;
+            
+            if (!message.trim()) {
+                alert('Please write a message!');
+                return;
+            }
+            
+            try {
+                await fetch(`${API_URL}/boards/${currentBoard.id}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ author, message, color: selectedColor })
+                });
+                
+                document.getElementById('commentMessage').value = '';
+                loadComments();
+            } catch (error) {
+                alert('Error adding comment!');
+            }
+        }
+
+        async function loadComments() {
+            try {
+                const response = await fetch(`${API_URL}/boards/${currentBoard.id}/comments`);
+                const comments = await response.json();
+                
+                const grid = document.getElementById('commentsGrid');
+                grid.innerHTML = '';
+                
+                comments.forEach(comment => {
+                    const card = document.createElement('div');
+                    card.className = 'comment-card';
+                    card.style.backgroundColor = comment.color;
+                    card.innerHTML = `
+                        <div class="comment-author">${comment.author}</div>
+                        <div class="comment-message">${comment.message}</div>
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading comments:', error);
+            }
+        }
+
+        function copyLink(inputId) {
+            const input = document.getElementById(inputId);
+            input.select();
+            document.execCommand('copy');
+            alert('Link copied! 📋');
+        }
+
+        // Auto-refresh comments every 5 seconds
+        setInterval(() => {
+            if (currentBoard && document.getElementById('boardPage').classList.contains('active')) {
+                loadComments();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
