@@ -19,49 +19,77 @@
         /* Navbar */
         .navbar {
             position: fixed;
-            top: 0;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 4rem);
+            max-width: 1200px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .logo {
             font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            color: #1a1a1a;
+            letter-spacing: -1px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 0.75rem;
         }
 
         .nav-buttons button {
-            margin-left: 1rem;
-            padding: 0.5rem 1.5rem;
+            padding: 0.75rem 1.75rem;
             border: none;
-            border-radius: 20px;
+            border-radius: 50px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-library {
-            background: #f0f0f0;
-            color: #333;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            color: #1a1a1a;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
         .btn-join {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+            backdrop-filter: blur(10px);
+            color: #1a1a1a;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
         }
 
         .btn-library:hover, .btn-join:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .btn-library:active, .btn-join:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
         /* Main Landing */
@@ -70,46 +98,144 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f0;
             padding-top: 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Floating Cards Background */
+        .floating-cards {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-card {
+            position: absolute;
+            width: 180px;
+            height: 240px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            animation: floatUp linear infinite;
+            opacity: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .floating-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            5% {
+                opacity: 0.7;
+            }
+            95% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-300px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Parallax effect on hover */
+        .landing:hover .floating-card {
+            animation-play-state: paused;
         }
 
         .landing-content {
             text-align: center;
-            color: white;
-            max-width: 800px;
-            padding: 2rem;
+            color: #1a1a1a;
+            max-width: 600px;
+            padding: 3rem 2.5rem;
+            z-index: 2;
+            position: relative;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         }
 
         .landing h1 {
             font-size: 4rem;
             margin-bottom: 1rem;
             animation: fadeInUp 0.8s;
+            font-weight: 900;
+            letter-spacing: -3px;
+            text-transform: none;
+            line-height: 1.1;
+            color: #1a1a1a;
         }
 
         .landing p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
+            font-size: 1.15rem;
+            margin-bottom: 2.5rem;
+            color: #333;
             animation: fadeInUp 1s;
+            font-weight: 500;
         }
 
         .cta-button {
-            padding: 1rem 3rem;
-            font-size: 1.2rem;
+            padding: 1.2rem 2.5rem;
+            font-size: 1rem;
             border: none;
-            border-radius: 30px;
-            background: white;
-            color: #667eea;
-            font-weight: 700;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            color: #1a1a1a;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             animation: fadeInUp 1.2s;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .cta-button:hover::before {
+            opacity: 1;
         }
 
         .cta-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .cta-button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         /* Library Modal */
@@ -214,14 +340,30 @@
         .create-button {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            color: #1a1a1a;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50px;
             font-size: 1.1rem;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
             margin-top: 1rem;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12),
+                        inset 0 1px 0 rgba(255, 255, 255, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .create-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .create-button:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
         }
 
         /* Board Page */
@@ -280,11 +422,23 @@
 
         .copy-btn {
             padding: 0.5rem 1rem;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            color: #1a1a1a;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 25px;
             cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12),
+                        inset 0 1px 0 rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 1);
         }
 
         .comments-grid {
@@ -391,19 +545,22 @@
 <body>
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="logo">KudoVibe ✨</div>
+        <div class="logo">HYPE WALL</div>
         <div class="nav-buttons">
-            <button class="btn-library" onclick="openLibrary()">📚 Library</button>
-            <button class="btn-join" onclick="openJoinModal()">🔑 Join with Code</button>
+            <button class="btn-library" onclick="openLibrary()"> Library</button>
+            <button class="btn-join" onclick="openJoinModal()"> Join with Code</button>
         </div>
     </nav>
 
     <!-- Landing Page -->
     <section class="landing" id="landing">
+        <!-- Floating Cards Background -->
+        <div class="floating-cards" id="floatingCards"></div>
+        
         <div class="landing-content">
-            <h1>Send Love, Gen Z Style</h1>
-            <p>Create aesthetic kudoboards that slap. No cap. 💅</p>
-            <button class="cta-button" onclick="openLibrary()">Create Your Vibe ✨</button>
+            <h1>HYPE WALL</h1>
+            <p>Create aesthetic boards that hit different</p>
+            <button class="cta-button" onclick="openLibrary()">Create Your Vibe</button>
         </div>
     </section>
 
@@ -524,6 +681,69 @@
             'tech-neon': ['#00FF88', '#00D9FF', '#FF00FF', '#FFFF00', '#FF0080'],
             'retro-90s': ['#FF6B9D', '#C06C84', '#FFA07A', '#FFD700', '#87CEEB']
         };
+
+        // Design card images for floating background
+        const designCards = [
+            { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)', type: 'gradient' },
+            { bg: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', type: 'gradient' },
+        ];
+
+        // Create floating cards
+        function createFloatingCards() {
+            const container = document.getElementById('floatingCards');
+            const numCards = 15;
+
+            for (let i = 0; i < numCards; i++) {
+                const card = document.createElement('div');
+                card.className = 'floating-card';
+                
+                const design = designCards[Math.floor(Math.random() * designCards.length)];
+                card.style.background = design.bg;
+                
+                // Random horizontal position
+                card.style.left = Math.random() * 100 + '%';
+                
+                // Random animation duration (slower = more dramatic)
+                const duration = 15 + Math.random() * 10;
+                card.style.animationDuration = duration + 's';
+                
+                // Random delay
+                card.style.animationDelay = Math.random() * 5 + 's';
+                
+                // Random size variation
+                const scale = 0.8 + Math.random() * 0.4;
+                card.style.transform = `scale(${scale})`;
+                
+                container.appendChild(card);
+            }
+        }
+
+        // Add mouse parallax effect
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.floating-card');
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            cards.forEach((card, index) => {
+                const speed = (index % 3 + 1) * 10;
+                const x = (mouseX - 0.5) * speed;
+                const y = (mouseY - 0.5) * speed;
+                card.style.transform += ` translate(${x}px, ${y}px)`;
+            });
+        });
+
+        // Initialize floating cards on page load
+        window.addEventListener('DOMContentLoaded', createFloatingCards);
 
         function openLibrary() {
             document.getElementById('libraryModal').classList.add('active');
@@ -687,7 +907,7 @@
             const input = document.getElementById(inputId);
             input.select();
             document.execCommand('copy');
-            alert('Link copied! 📋');
+            alert('Link copied!');
         }
 
         // Auto-refresh comments every 5 seconds
