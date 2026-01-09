@@ -44,9 +44,135 @@
             letter-spacing: -1px;
         }
 
+        /* Library Dropdown */
+        .library-dropdown {
+            position: absolute;
+            top: calc(100% + 15px);
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+            min-width: 320px;
+            padding: 0.75rem;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+        }
+
+        .library-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+            background: transparent;
+        }
+
+        .dropdown-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .dropdown-item:hover {
+            transform: translateX(4px);
+        }
+
+        .dropdown-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background: #f5f5f5;
+            flex-shrink: 0;
+        }
+
+        .dropdown-icon img {
+            width: 28px;
+            height: 28px;
+            object-fit: contain;
+        }
+
+        .dropdown-text {
+            flex: 1;
+        }
+
+        .dropdown-text h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 0.25rem 0;
+            color: #1a1a1a;
+        }
+
+        .dropdown-text p {
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0;
+            font-weight: 400;
+        }
+
+        /* Individual aesthetic hover colors */
+        .dropdown-item[data-aesthetic="professional"]:hover {
+            background: rgba(195, 207, 226, 0.15);
+        }
+
+        .dropdown-item[data-aesthetic="professional"]:hover .dropdown-icon {
+            background: #c3cfe2;
+        }
+
+        .dropdown-item[data-aesthetic="dark-academia"]:hover {
+            background: rgba(139, 115, 85, 0.15);
+        }
+
+        .dropdown-item[data-aesthetic="dark-academia"]:hover .dropdown-icon {
+            background: #8B7355;
+        }
+
+        .dropdown-item[data-aesthetic="cottage-core"]:hover {
+            background: rgba(255, 182, 193, 0.15);
+        }
+
+        .dropdown-item[data-aesthetic="cottage-core"]:hover .dropdown-icon {
+            background: #FFB6C1;
+        }
+
+        .dropdown-item[data-aesthetic="tech-neon"]:hover {
+            background: rgba(0, 255, 136, 0.15);
+        }
+
+        .dropdown-item[data-aesthetic="tech-neon"]:hover .dropdown-icon {
+            background: #00ff88;
+        }
+
+        .dropdown-item[data-aesthetic="retro-90s"]:hover {
+            background: rgba(255, 107, 157, 0.15);
+        }
+
+        .dropdown-item[data-aesthetic="retro-90s"]:hover .dropdown-icon {
+            background: #FF6B9D;
+        }
+
         .nav-buttons {
             display: flex;
             gap: 0.75rem;
+            position: relative;
         }
 
         .nav-buttons button {
@@ -547,8 +673,57 @@
     <nav class="navbar">
         <div class="logo">HYPE WALL</div>
         <div class="nav-buttons">
-            <button class="btn-library" onclick="openLibrary()"> Library</button>
-            <button class="btn-join" onclick="openJoinModal()"> Join with Code</button>
+            <div style="position: relative;">
+                <button class="btn-library" onclick="toggleLibrary()">Library</button>
+                <div class="library-dropdown" id="libraryDropdown">
+                    <div class="dropdown-item" data-aesthetic="professional" onclick="selectAestheticFromDropdown('professional')">
+                        <div class="dropdown-icon">
+                            <img src="images/professional.jpeg" alt="" style="width: 42px; height: 42px;" alt="Professional">
+                        </div>
+                        <div class="dropdown-text">
+                            <h4>Professional Minimalist</h4>
+                            <p>Clean, crisp, corporate chic</p>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" data-aesthetic="dark-academia" onclick="selectAestheticFromDropdown('dark-academia')">
+                        <div class="dropdown-icon">
+                            <img src="images/dark-academia.jpeg" alt="" style="width: 42px; height: 42px;" alt="Dark Academia">
+                        </div>
+                        <div class="dropdown-text">
+                            <h4>Dark Academia</h4>
+                            <p>Moody, scholarly vibes</p>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" data-aesthetic="cottage-core" onclick="selectAestheticFromDropdown('cottage-core')">
+                        <div class="dropdown-icon">
+                            <img src="images/cottage-core.jpeg" alt="" style="width: 42px; height: 42px;" alt="Cottage Core">
+                        </div>
+                        <div class="dropdown-text">
+                            <h4>Cottage Core</h4>
+                            <p>Soft, dreamy, pastoral</p>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" data-aesthetic="tech-neon" onclick="selectAestheticFromDropdown('tech-neon')">
+                        <div class="dropdown-icon">
+                            <img src="images/tech-neon.jpeg" alt="" style="width: 42px; height: 42px;" alt="Tech Neon">
+                        </div>
+                        <div class="dropdown-text">
+                            <h4>Tech Neon</h4>
+                            <p>Cyberpunk energy</p>
+                        </div>
+                    </div>
+                    <div class="dropdown-item" data-aesthetic="retro-90s" onclick="selectAestheticFromDropdown('retro-90s')">
+                        <div class="dropdown-icon">
+                            <img src="images/retro-90s.jpeg" alt="" style="width: 42px; height: 42px;" alt="90s Retro">
+                        </div>
+                        <div class="dropdown-text">
+                            <h4>90s Retro</h4>
+                            <p>Totally radical throwback</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-join" onclick="openJoinModal()">Join with Code</button>
         </div>
     </nav>
 
@@ -559,48 +734,25 @@
         
         <div class="landing-content">
             <h1>HYPE WALL</h1>
-            <p>Create aesthetic boards that hit different</p>
+            <p>Create aesthetic boards that hit different 💫</p>
             <button class="cta-button" onclick="openLibrary()">Create Your Vibe</button>
         </div>
     </section>
 
     <!-- Library Modal -->
     <div class="modal" id="libraryModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
-                <h2>Choose Your Aesthetic</h2>
+                <h2>Create Your Board</h2>
                 <button class="close-modal" onclick="closeLibrary()">&times;</button>
             </div>
             
-            <div class="aesthetic-grid">
-                <div class="aesthetic-card professional" onclick="selectAesthetic('professional')">
-                    <h3>💼 Professional Minimalist</h3>
-                    <p>Clean, crisp, corporate chic</p>
-                </div>
-                <div class="aesthetic-card dark-academia" onclick="selectAesthetic('dark-academia')">
-                    <h3>📚 Dark Academia</h3>
-                    <p>Moody, scholarly vibes</p>
-                </div>
-                <div class="aesthetic-card cottage-core" onclick="selectAesthetic('cottage-core')">
-                    <h3>🌸 Cottage Core</h3>
-                    <p>Soft, dreamy, pastoral</p>
-                </div>
-                <div class="aesthetic-card tech-neon" onclick="selectAesthetic('tech-neon')">
-                    <h3>⚡ Tech Neon</h3>
-                    <p>Cyberpunk energy</p>
-                </div>
-                <div class="aesthetic-card retro-90s" onclick="selectAesthetic('retro-90s')">
-                    <h3>🎨 90s Retro</h3>
-                    <p>Totally radical throwback</p>
-                </div>
-            </div>
-
             <div class="form-group">
                 <label>Who is this for? 💖</label>
-                <input type="text" id="recipientName" placeholder="Their name...">
+                <input type="text" id="recipientName" placeholder="Enter their name..." autofocus>
             </div>
 
-            <button class="create-button" onclick="createBoard()">Create KudoVibe</button>
+            <button class="create-button" onclick="createBoard()">Create Board</button>
         </div>
     </div>
 
@@ -745,12 +897,44 @@
         // Initialize floating cards on page load
         window.addEventListener('DOMContentLoaded', createFloatingCards);
 
+        function toggleLibrary() {
+            const dropdown = document.getElementById('libraryDropdown');
+            dropdown.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('libraryDropdown');
+            const libraryBtn = document.querySelector('.btn-library');
+            if (!dropdown.contains(e.target) && !libraryBtn.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        function selectAestheticFromDropdown(aesthetic) {
+            selectedAesthetic = aesthetic;
+            document.getElementById('libraryDropdown').classList.remove('active');
+            openLibraryModal();
+            // Focus on the input after modal opens
+            setTimeout(() => {
+                document.getElementById('recipientName').focus();
+            }, 100);
+        }
+
         function openLibrary() {
+            // This is now only called from "Create Your Vibe" button
+            // Show a message to use the dropdown instead
+            alert('Please select an aesthetic from the Library dropdown menu first! 🎨');
+        }
+
+        function openLibraryModal() {
             document.getElementById('libraryModal').classList.add('active');
         }
 
         function closeLibrary() {
             document.getElementById('libraryModal').classList.remove('active');
+            // Clear the input when closing
+            document.getElementById('recipientName').value = '';
         }
 
         function openJoinModal() {
@@ -907,7 +1091,7 @@
             const input = document.getElementById(inputId);
             input.select();
             document.execCommand('copy');
-            alert('Link copied!');
+            alert('Link copied! 📋');
         }
 
         // Auto-refresh comments every 5 seconds
