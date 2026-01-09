@@ -50,7 +50,8 @@ def get_board_by_code(code):
             return jsonify({
                 'id': board_id,
                 'aesthetic': board['aesthetic'],
-                'recipient_name': board['recipient_name']
+                'recipient_name': board['recipient_name'],
+                'join_code': board['join_code']
             }), 200
     return jsonify({'error': 'Board not found'}), 404
 
@@ -67,7 +68,7 @@ def view_board(view_token):
     for board_id, board in boards.items():
         if board['view_token'] == view_token:
             board_data = board.copy()
-            board_data['comments'] = comments[board_id]
+            board_data['comments'] = comments.get(board_id, [])
             return jsonify(board_data), 200
     return jsonify({'error': 'Board not found'}), 404
 

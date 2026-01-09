@@ -678,7 +678,7 @@
                 <div class="library-dropdown" id="libraryDropdown">
                     <div class="dropdown-item" data-aesthetic="professional" onclick="selectAestheticFromDropdown('professional')">
                         <div class="dropdown-icon">
-                            <img src="images/professional.jpeg" alt="" style="width: 42px; height: 42px;" alt="Professional">
+                            <img src="images/professional.jpeg" style="width: 42px; height: 42px;" alt="Professional">
                         </div>
                         <div class="dropdown-text">
                             <h4>Professional Minimalist</h4>
@@ -687,7 +687,7 @@
                     </div>
                     <div class="dropdown-item" data-aesthetic="dark-academia" onclick="selectAestheticFromDropdown('dark-academia')">
                         <div class="dropdown-icon">
-                            <img src="images/dark-academia.jpeg" alt="" style="width: 42px; height: 42px;" alt="Dark Academia">
+                            <img src="images/dark-academia.jpeg" style="width: 42px; height: 42px;" alt="Dark Academia">
                         </div>
                         <div class="dropdown-text">
                             <h4>Dark Academia</h4>
@@ -696,7 +696,7 @@
                     </div>
                     <div class="dropdown-item" data-aesthetic="cottage-core" onclick="selectAestheticFromDropdown('cottage-core')">
                         <div class="dropdown-icon">
-                            <img src="images/cottage-core.jpeg" alt="" style="width: 42px; height: 42px;" alt="Cottage Core">
+                            <img src="images/cottage-core.jpeg" style="width: 42px; height: 42px;" alt="Cottage Core">
                         </div>
                         <div class="dropdown-text">
                             <h4>Cottage Core</h4>
@@ -705,7 +705,7 @@
                     </div>
                     <div class="dropdown-item" data-aesthetic="tech-neon" onclick="selectAestheticFromDropdown('tech-neon')">
                         <div class="dropdown-icon">
-                            <img src="images/tech-neon.jpeg" alt="" style="width: 42px; height: 42px;" alt="Tech Neon">
+                            <img src="images/tech-neon.jpeg" style="width: 42px; height: 42px;" alt="Tech Neon">
                         </div>
                         <div class="dropdown-text">
                             <h4>Tech Neon</h4>
@@ -714,7 +714,7 @@
                     </div>
                     <div class="dropdown-item" data-aesthetic="retro-90s" onclick="selectAestheticFromDropdown('retro-90s')">
                         <div class="dropdown-icon">
-                            <img src="images/retro-90s.jpeg" alt="" style="width: 42px; height: 42px;" alt="90s Retro">
+                            <img src="images/retro-90s.jpeg" style="width: 42px; height: 42px;" alt="90s Retro">
                         </div>
                         <div class="dropdown-text">
                             <h4>90s Retro</h4>
@@ -943,14 +943,6 @@
 
         function closeJoinModal() {
             document.getElementById('joinModal').classList.remove('active');
-        }
-
-        function selectAesthetic(aesthetic) {
-            selectedAesthetic = aesthetic;
-            document.querySelectorAll('.aesthetic-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            event.target.closest('.aesthetic-card').classList.add('selected');
         }
 
         async function createBoard() {
