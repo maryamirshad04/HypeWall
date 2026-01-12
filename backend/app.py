@@ -28,15 +28,15 @@ def create_board():
     view_token = str(uuid.uuid4())
     
     boards[board_id] = {
-        'id': board_id,
-        'aesthetic': aesthetic,
-        'recipient_name': recipient_name,
-        'join_code': join_code,
-        'view_token': view_token,
-        'created_at': datetime.now().isoformat(),
-        'contributor_link': f'/contribute/{board_id}',
-        'view_link': f'/view/{view_token}'
-    }
+    'id': board_id,
+    'aesthetic': aesthetic,
+    'recipient_name': recipient_name,
+    'join_code': join_code,
+    'view_token': view_token,
+    'created_at': datetime.now().isoformat(),
+    'contributor_link': f'/index.html?contribute={board_id}',  # Add /index.html
+    'view_link': f'/index.html?view={view_token}'              # Add /index.html
+}
     
     comments[board_id] = []
     
