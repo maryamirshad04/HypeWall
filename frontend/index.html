@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KudoVibe - Gen Z Kudoboard</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/animations.css">
+</head>
+<body>
+    <div class="floating-overlay" id="floatingOverlay"></div>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">HYPE WALL</div>
+        <div class="nav-buttons">
+            <div style="position: relative;">
+                <button class="btn-library" onclick="toggleLibrary()">Library</button>
+                <div class="library-dropdown" id="libraryDropdown">
+                    <!-- Dropdown items will be populated by JS -->
+                </div>
+            </div>
+            <button class="btn-join" onclick="openJoinModal()">Join with Code</button>
+        </div>
+    </nav>
+
+    <!-- Landing Page -->
+    <section class="landing" id="landing">
+        <div class="floating-cards" id="floatingCards"></div>
+        
+        <div class="landing-content">
+            <h1>HYPE WALL</h1>
+            <p>Create aesthetic boards that hit different 💫</p>
+            <div class="cta-container">
+                <button class="cta-button" onclick="toggleFloatingCar()">Create Your Vibe</button>
+                
+                <!-- Floating Card Car Layout -->
+                <div class="floating-card-car" id="floatingCardCar">
+                    <!-- Car buttons will be populated by JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Library Modal -->
+    <div class="modal" id="libraryModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Create Your Board</h2>
+                <button class="close-modal" onclick="closeLibrary()">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label>Who is this for? 💖</label>
+                <input type="text" id="recipientName" placeholder="Enter their name..." autofocus>
+            </div>
+
+            <button class="create-button" onclick="createBoard()">Create Board</button>
+        </div>
+    </div>
+
+    <!-- Join Modal -->
+    <div class="modal" id="joinModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2>Join Board</h2>
+                <button class="close-modal" onclick="closeJoinModal()">&times;</button>
+            </div>
+            <div class="form-group">
+                <label>Enter Code</label>
+                <input type="text" id="joinCode" placeholder="ABC123" style="text-transform: uppercase;">
+            </div>
+            <button class="create-button" onclick="joinBoard()">Join 🚀</button>
+        </div>
+    </div>
+
+    <!-- Board Page -->
+    <div class="board-page" id="boardPage">
+        <div class="board-header">
+            <h1 id="boardTitle">KudoVibe Board</h1>
+        </div>
+
+        <div class="share-section" id="creatorView">
+            <h3>🎉 Your Board is Ready!</h3>
+            <div class="share-links">
+                <div class="share-item">
+                    <h4>📤 Share with Contributors</h4>
+                    <div class="link-display">
+                        <input type="text" id="contributorLink" readonly>
+                        <button class="copy-btn" onclick="copyLink('contributorLink')">Copy</button>
+                    </div>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">Code: <strong id="boardCode"></strong></p>
+                </div>
+                <div class="share-item">
+                    <h4>👀 Your View Link</h4>
+                    <div class="link-display">
+                        <input type="text" id="viewLink" readonly>
+                        <button class="copy-btn" onclick="copyLink('viewLink')">Copy</button>
+                    </div>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Use this to view & download all messages</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="comment-form" id="commentForm">
+            <h3>Add Your Message 💌</h3>
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="commentAuthor" placeholder="Anonymous">
+            </div>
+            <div class="form-group">
+                <label>Pick a Color</label>
+                <div class="color-picker" id="colorPicker"></div>
+            </div>
+            <div class="form-group">
+                <label>Your Message</label>
+                <textarea id="commentMessage" placeholder="Say something nice..."></textarea>
+            </div>
+            <button class="create-button" onclick="addComment()">Post Message 🚀</button>
+        </div>
+
+        <div class="comments-grid" id="commentsGrid"></div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="scripts/utils.js"></script>
+    <script src="scripts/api.js"></script>
+    <script src="scripts/ui.js"></script>
+    <script src="scripts/board.js"></script>
+    <script src="scripts/main.js"></script>
+</body>
+</html>
