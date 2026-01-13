@@ -57,6 +57,22 @@ const ApiService = {
         }
     },
 
+    // Get board by view token (for view page)
+    getBoardByViewToken: async function(viewToken) {
+        try {
+            const response = await fetch(`${this.API_URL}/boards/view/${viewToken}`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            return await response.json();
+        } catch (error) {
+            console.error('Error getting board by view token:', error);
+            throw error;
+        }
+    },
+
     // Add comment to board
     addComment: async function(boardId, commentData) {
         try {

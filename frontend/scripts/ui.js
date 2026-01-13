@@ -8,8 +8,8 @@ const UIController = {
         joinModal: null,
         landingPage: null,
         boardPage: null,
-        floatingCards: null,
-        colorPicker: null
+        viewPage: null,
+        floatingCards: null
     },
 
     // Initialize UI
@@ -28,8 +28,8 @@ const UIController = {
         this.elements.joinModal = document.getElementById('joinModal');
         this.elements.landingPage = document.getElementById('landing');
         this.elements.boardPage = document.getElementById('boardPage');
+        this.elements.viewPage = document.getElementById('viewPage');
         this.elements.floatingCards = document.getElementById('floatingCards');
-        this.elements.colorPicker = document.getElementById('colorPicker');
     },
 
     // Setup event listeners
@@ -209,31 +209,65 @@ const UIController = {
         this.elements.joinModal.classList.remove('active');
     },
 
-    // Show board page
+    // Show board page (form and links)
     showBoardPage: function() {
+        // Hide all pages
         this.elements.landingPage.style.display = 'none';
+        
+        const viewPage = document.getElementById('viewPage');
+        if (viewPage) {
+            viewPage.style.display = 'none';
+            viewPage.classList.remove('active');
+        }
+        
+        // Show board page
+        this.elements.boardPage.style.display = 'block';
         this.elements.boardPage.classList.add('active');
+    },
+
+    // Show view page (comments only)
+    showViewPage: function() {
+        // Hide all pages
+        this.elements.landingPage.style.display = 'none';
+        this.elements.boardPage.style.display = 'none';
+        this.elements.boardPage.classList.remove('active');
+        
+        // Show view page
+        const viewPage = document.getElementById('viewPage');
+        if (viewPage) {
+            viewPage.style.display = 'block';
+            viewPage.classList.add('active');
+        }
     },
 
     // Show landing page
     showLandingPage: function() {
         this.elements.landingPage.style.display = 'flex';
+        
+        // Hide other pages
+        this.elements.boardPage.style.display = 'none';
         this.elements.boardPage.classList.remove('active');
+        
+        const viewPage = document.getElementById('viewPage');
+        if (viewPage) {
+            viewPage.style.display = 'none';
+            viewPage.classList.remove('active');
+        }
     },
 
-    // Setup color picker
-    setupColorPicker: function(aesthetic) {
-        if (!this.elements.colorPicker) return;
+    // Setup color picker (REMOVED - now handled by BoardController)
+    // setupColorPicker: function(aesthetic) {
+    //     if (!this.elements.colorPicker) return;
         
-        const colors = BoardController.aestheticColors[aesthetic] || BoardController.aestheticColors['professional'];
-        this.elements.colorPicker.innerHTML = '';
+    //     const colors = BoardController.aestheticColors[aesthetic] || BoardController.aestheticColors['professional'];
+    //     this.elements.colorPicker.innerHTML = '';
         
-        colors.forEach((color, i) => {
-            const div = document.createElement('div');
-            div.className = 'color-option' + (i === 0 ? ' selected' : '');
-            div.style.backgroundColor = color;
-            div.onclick = () => BoardController.selectColor(color, div);
-            this.elements.colorPicker.appendChild(div);
-        });
-    }
+    //     colors.forEach((color, i) => {
+    //         const div = document.createElement('div');
+    //         div.className = 'color-option' + (i === 0 ? ' selected' : '');
+    //         div.style.backgroundColor = color;
+    //         div.onclick = () => BoardController.selectColor(color, div);
+    //         this.elements.colorPicker.appendChild(div);
+    //     });
+    // }
 };

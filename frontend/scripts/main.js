@@ -23,15 +23,19 @@ const App = {
         window.closeJoinModal = () => UIController.closeJoinModal();
         window.createBoard = () => this.createBoard();
         window.joinBoard = () => this.joinBoard();
-        window.addComment = () => BoardController.addComment();
+        window.postMessage = () => BoardController.postMessage();
         window.copyLink = (inputId) => BoardController.copyLink(inputId);
         window.closeLibrary = () => UIController.closeLibrary();
+        window.navigateToViewPage = () => BoardController.navigateToViewPage();
+        window.returnToBoard = () => ViewController.returnToBoard();
     },
 
     // Check for board in URL parameters
     checkForBoardInURL: function() {
         const boardId = Utils.getUrlParameter('board');
         const code = Utils.getUrlParameter('code');
+        const contribute = Utils.getUrlParameter('contribute');
+        const view = Utils.getUrlParameter('view');
         
         if (boardId) {
             // Load existing board
@@ -40,6 +44,12 @@ const App = {
             // Join board with code
             document.getElementById('joinCode').value = code;
             this.joinBoardWithCode(code);
+        } else if (contribute) {
+            // Load board for contribution (board page)
+            this.loadBoard(contribute);
+        } else if (view) {
+            // Load board by view token (view page only)
+            this.loadBoardByViewToken(view);
         }
     },
 
@@ -52,6 +62,11 @@ const App = {
     // Create new board
     createBoard: async function() {
         const recipientName = document.getElementById('recipientName').value || 'Someone Special';
+        
+        if (!recipientName.trim()) {
+            alert('Please enter a recipient name!');
+            return;
+        }
         
         try {
             const boardData = await ApiService.createBoard(
@@ -70,6 +85,12 @@ const App = {
     // Join board with code
     joinBoard: async function() {
         const code = document.getElementById('joinCode').value.toUpperCase();
+        
+        if (!code.trim()) {
+            alert('Please enter a join code!');
+            return;
+        }
+        
         await this.joinBoardWithCode(code);
     },
 
@@ -86,7 +107,7 @@ const App = {
         }
     },
 
-    // Load existing board
+    // Load existing board (for board page)
     loadBoard: async function(boardId) {
         try {
             const boardData = await ApiService.getBoard(boardId);
@@ -99,12 +120,24 @@ const App = {
         }
     },
 
+    // Load board by view token (for view page only)
+    loadBoardByViewToken: async function(viewToken) {
+        try {
+            const boardData = await ApiService.getBoardByViewToken(viewToken);
+            
+            // Initialize view controller for view page only
+            ViewController.init(boardData);
+        } catch (error) {
+            console.error('Error loading board by view token:', error);
+            alert('Unable to load board. Please check the URL.');
+        }
+    },
+
     // Check if user is creator of the board
     checkIfCreator: function(boardData) {
-        // This would typically check against stored user session or tokens
-        // For now, we'll assume creator is viewing via view link
-        return window.location.pathname.includes('/board/') && 
-               !window.location.pathname.includes('/join');
+        // Check if user accessed via contributor link (has board ID in URL)
+        const contribute = Utils.getUrlParameter('contribute');
+        return contribute === boardData.id;
     }
 };
 

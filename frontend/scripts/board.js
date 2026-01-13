@@ -31,21 +31,18 @@ const BoardController = {
         this.selectedAesthetic = boardData.aesthetic;
         
         this.updateUI();
-        this.loadComments();
-        this.setupAutoRefresh();
+        this.setupColorPicker();
+        
+        // Update recipient name in title
+        document.getElementById('boardRecipientName').textContent = boardData.recipient_name;
     },
 
     // Update UI based on board state
     updateUI: function() {
-        // Update title
-        document.getElementById('boardTitle').textContent = `Board for ${this.currentBoard.recipient_name}`;
+        // Update title is now handled in init
         
         // Apply aesthetic
         this.applyAesthetic(this.currentBoard.aesthetic);
-        
-        // Setup color picker
-        UIController.setupColorPicker(this.currentBoard.aesthetic);
-        this.selectedColor = this.aestheticColors[this.currentBoard.aesthetic][0];
         
         // Show/hide creator view
         const creatorView = document.getElementById('creatorView');
@@ -71,23 +68,50 @@ const BoardController = {
         if (!this.currentBoard) return;
         
         document.getElementById('contributorLink').value = 
-            window.location.origin + (this.currentBoard.contributor_link || `/board/${this.currentBoard.id}/join`);
+            window.location.origin + (this.currentBoard.contributor_link || `/index.html?contribute=${this.currentBoard.id}`);
         
         document.getElementById('viewLink').value = 
-            window.location.origin + (this.currentBoard.view_link || `/board/${this.currentBoard.id}`);
+            window.location.origin + (this.currentBoard.view_link || `/index.html?view=${this.currentBoard.view_token}`);
         
         document.getElementById('boardCode').textContent = this.currentBoard.join_code || 'ABC123';
+    },
+
+    // Setup color picker on board page
+    setupColorPicker: function() {
+        const colorPicker = document.getElementById('colorPicker');
+        if (!colorPicker) return;
+        
+        colorPicker.innerHTML = '';
+        const colors = this.aestheticColors[this.selectedAesthetic] || this.aestheticColors['professional'];
+        
+        colors.forEach((color, index) => {
+            const colorOption = document.createElement('div');
+            colorOption.className = 'color-option';
+            if (index === 0) colorOption.classList.add('selected');
+            
+            colorOption.style.backgroundColor = color;
+            colorOption.title = color;
+            colorOption.onclick = (e) => {
+                this.selectColor(color, e.currentTarget);
+            };
+            
+            colorPicker.appendChild(colorOption);
+        });
+        
+        this.selectedColor = colors[0];
     },
 
     // Select color
     selectColor: function(color, element) {
         this.selectedColor = color;
-        document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+        document.querySelectorAll('#colorPicker .color-option').forEach(opt => {
+            opt.classList.remove('selected');
+        });
         element.classList.add('selected');
     },
 
-    // Add comment
-    addComment: async function() {
+    // Post message from board page
+    postMessage: async function() {
         const author = document.getElementById('commentAuthor').value || 'Anonymous';
         const message = document.getElementById('commentMessage').value;
         
@@ -104,55 +128,27 @@ const BoardController = {
             });
             
             // Clear form
+            document.getElementById('commentAuthor').value = '';
             document.getElementById('commentMessage').value = '';
             
-            // Reload comments
-            this.loadComments();
+            // Show success message
+            alert('Message posted successfully! ✨');
+            
+            // Auto-navigate to view page to see the new message
+            this.navigateToViewPage();
+            
         } catch (error) {
-            alert('Error adding comment! Please try again.');
-            console.error('Error adding comment:', error);
+            alert('Error posting message! Please try again.');
+            console.error('Error posting message:', error);
         }
     },
 
-    // Load comments
-    loadComments: async function() {
+    // Navigate to view page (comments only)
+    navigateToViewPage: function() {
         if (!this.currentBoard) return;
         
-        try {
-            const comments = await ApiService.getComments(this.currentBoard.id);
-            this.renderComments(comments);
-        } catch (error) {
-            console.error('Error loading comments:', error);
-        }
-    },
-
-    // Render comments
-    renderComments: function(comments) {
-        const grid = document.getElementById('commentsGrid');
-        if (!grid) return;
-        
-        grid.innerHTML = '';
-        
-        comments.forEach(comment => {
-            const card = document.createElement('div');
-            card.className = 'comment-card';
-            card.style.backgroundColor = comment.color;
-            card.innerHTML = `
-                <div class="comment-author">${comment.author}</div>
-                <div class="comment-message">${comment.message}</div>
-            `;
-            grid.appendChild(card);
-        });
-    },
-
-    // Setup auto-refresh
-    setupAutoRefresh: function() {
-        // Auto-refresh comments every 5 seconds
-        setInterval(() => {
-            if (this.currentBoard && document.getElementById('boardPage').classList.contains('active')) {
-                this.loadComments();
-            }
-        }, 5000);
+        // Initialize view page with current board data
+        ViewController.init(this.currentBoard);
     },
 
     // Copy link

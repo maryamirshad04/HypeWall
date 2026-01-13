@@ -77,10 +77,13 @@
         </div>
     </div>
 
-    <!-- Board Page -->
+    <!-- Board Page (Form and Links) -->
     <div class="board-page" id="boardPage">
         <div class="board-header">
-            <h1 id="boardTitle">KudoVibe Board</h1>
+            <h1 id="boardTitle">Board for <span id="boardRecipientName"></span></h1>
+            <button class="btn-view-messages" onclick="navigateToViewPage()">
+                👁️ View Messages
+            </button>
         </div>
 
         <div class="share-section" id="creatorView">
@@ -95,17 +98,17 @@
                     <p style="margin-top: 0.5rem; font-size: 0.9rem;">Code: <strong id="boardCode"></strong></p>
                 </div>
                 <div class="share-item">
-                    <h4>👀 Your View Link</h4>
+                    <h4>👀 View Messages Link</h4>
                     <div class="link-display">
                         <input type="text" id="viewLink" readonly>
                         <button class="copy-btn" onclick="copyLink('viewLink')">Copy</button>
                     </div>
-                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Use this to view & download all messages</p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Send this to see all messages</p>
                 </div>
             </div>
         </div>
 
-        <div class="comment-form" id="commentForm">
+        <div class="message-form">
             <h3>Add Your Message 💌</h3>
             <div class="form-group">
                 <label>Your Name</label>
@@ -117,12 +120,31 @@
             </div>
             <div class="form-group">
                 <label>Your Message</label>
-                <textarea id="commentMessage" placeholder="Say something nice..."></textarea>
+                <textarea id="commentMessage" placeholder="Say something nice..." rows="4"></textarea>
             </div>
-            <button class="create-button" onclick="addComment()">Post Message 🚀</button>
+            <button class="create-button" onclick="postMessage()">Post Message 🚀</button>
         </div>
+    </div>
 
-        <div class="comments-grid" id="commentsGrid"></div>
+    <!-- View Page (Comments Only) -->
+    <div class="view-page" id="viewPage">
+        <div class="view-header">
+            <h1>Messages for <span id="viewRecipientName"></span></h1>
+            <p class="view-subtitle">All the love and appreciation in one place 💖</p>
+            <button class="btn-back-to-board" onclick="returnToBoard()">← Back to Board</button>
+        </div>
+        
+        <div class="comments-container">
+            <div class="comments-grid" id="commentsGrid">
+                <!-- Comments will be loaded here -->
+            </div>
+            
+            <div class="empty-state" id="emptyState">
+                <div class="empty-icon">💌</div>
+                <h3>No messages yet</h3>
+                <p>Be the first to send some love!</p>
+            </div>
+        </div>
     </div>
 
     <!-- JavaScript Files -->
@@ -130,6 +152,7 @@
     <script src="scripts/api.js"></script>
     <script src="scripts/ui.js"></script>
     <script src="scripts/board.js"></script>
+    <script src="scripts/view.js"></script>
     <script src="scripts/main.js"></script>
 </body>
 </html>
