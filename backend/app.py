@@ -13,7 +13,6 @@ app = Flask(__name__)
 CORS(app)
 
 # Initialize Firebase
-# Check if default app is already initialized to avoid errors on reload
 if not firebase_admin._apps:
     cred = credentials.Certificate('serviceAccountKey.json')
     firebase_admin.initialize_app(cred)
@@ -64,7 +63,7 @@ def get_board_by_code(code):
         return jsonify({'error': 'Board not found'}), 404
         
     board = results[0].to_dict()
-    # Filter sensitive info
+    # Filter sensitive info - only return what contributors need
     return jsonify({
         'id': board['id'],
         'aesthetic': board['aesthetic'],
@@ -74,26 +73,34 @@ def get_board_by_code(code):
 
 @app.route('/api/boards/<board_id>', methods=['GET'])
 def get_board(board_id):
-    """Get board details"""
+    """Get board details with role-based permissions"""
     doc_ref = db.collection('boards').document(board_id)
     doc = doc_ref.get()
     
     if doc.exists:
         board = doc.to_dict()
-        # Remove sensitive tokens to prevent unauthorized access
-        # Only return what's needed for the contributor view
-        safe_board = {
-            'id': board['id'],
-            'aesthetic': board['aesthetic'],
-            'recipient_name': board['recipient_name'],
-            'created_at': board['created_at']
-        }
-        return jsonify(safe_board), 200
+        
+        # Check if request is from creator (via query parameter)
+        creator_token = request.args.get('creator_token')
+        is_creator = creator_token and creator_token == board.get('creator_token')
+        
+        if is_creator:
+            # Creator gets full access including tokens
+            return jsonify(board), 200
+        else:
+            # Non-creator gets limited info
+            safe_board = {
+                'id': board['id'],
+                'aesthetic': board['aesthetic'],
+                'recipient_name': board['recipient_name'],
+                'created_at': board['created_at']
+            }
+            return jsonify(safe_board), 200
     return jsonify({'error': 'Board not found'}), 404
 
 @app.route('/api/boards/view/<view_token>', methods=['GET'])
 def view_board(view_token):
-    """View board with all comments (recipient view)"""
+    """View board with all comments (recipient view) - No sensitive data"""
     boards_ref = db.collection('boards')
     query = boards_ref.where(filter=firestore.FieldFilter('view_token', '==', view_token)).limit(1)
     results = list(query.stream())
@@ -108,8 +115,16 @@ def view_board(view_token):
     comments_ref = db.collection('boards').document(board_id).collection('comments')
     comments = [doc.to_dict() for doc in comments_ref.stream()]
     
-    board_data['comments'] = comments
-    return jsonify(board_data), 200
+    # Return only what viewers need
+    safe_board_data = {
+        'id': board_data['id'],
+        'aesthetic': board_data['aesthetic'],
+        'recipient_name': board_data['recipient_name'],
+        'created_at': board_data['created_at'],
+        'comments': comments
+    }
+    
+    return jsonify(safe_board_data), 200
 
 @app.route('/api/boards/<board_id>/comments', methods=['POST'])
 def add_comment(board_id):

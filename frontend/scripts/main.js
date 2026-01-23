@@ -11,7 +11,7 @@ const App = {
     bindEvents: function () {
         // Global event listeners
         window.addEventListener('DOMContentLoaded', () => {
-            console.log('App initialized');
+            console.log('App initialized with strict role permissions');
         });
 
         // Expose functions to global scope
@@ -26,8 +26,6 @@ const App = {
         window.postMessage = () => BoardController.postMessage();
         window.copyLink = (inputId) => BoardController.copyLink(inputId);
         window.closeLibrary = () => UIController.closeLibrary();
-        window.navigateToViewPage = () => BoardController.navigateToViewPage();
-        window.returnToBoard = () => ViewController.returnToBoard();
     },
 
     // Check for board in URL parameters
@@ -38,18 +36,18 @@ const App = {
         const view = Utils.getUrlParameter('view');
 
         if (boardId) {
-            // Load existing board
+            // Load existing board with role detection
             this.loadBoard(boardId);
         } else if (code) {
-            // Join board with code
+            // Join board with code - will be contributor
             document.getElementById('joinCode').value = code;
             this.joinBoardWithCode(code);
         } else if (contribute) {
-            // Load board for contribution (board page)
-            this.loadBoard(contribute);
+            // Load board for contribution (contributor role)
+            this.loadBoardAsContributor(contribute);
         } else if (view) {
-            // Load board by view token (view page only)
-            this.loadBoardByViewToken(view);
+            // Load board by view token (viewer role only)
+            this.loadBoardAsViewer(view);
         }
     },
 
@@ -59,7 +57,7 @@ const App = {
         UIController.openLibraryModal();
     },
 
-    // Create new board
+    // Create new board (becomes creator)
     createBoard: async function () {
         const recipientName = document.getElementById('recipientName').value || 'Someone Special';
 
@@ -79,8 +77,9 @@ const App = {
                 localStorage.setItem(`hypewall_creator_${boardData.id}`, boardData.creator_token);
             }
 
-            BoardController.init(boardData, true);
-            UIController.showView('creator'); // Explicit creator view
+            // Initialize as creator
+            BoardController.init(boardData, 'creator');
+            UIController.showView('creator');
             UIController.closeLibrary();
         } catch (error) {
             alert('Error creating board. Make sure Flask server is running!');
@@ -88,7 +87,7 @@ const App = {
         }
     },
 
-    // Join board with code
+    // Join board with code (becomes contributor)
     joinBoard: async function () {
         const code = document.getElementById('joinCode').value.toUpperCase();
 
@@ -106,7 +105,7 @@ const App = {
             const boardData = await ApiService.joinBoard(code);
 
             // Contributors joining via code are NOT creators
-            BoardController.init(boardData, false);
+            BoardController.init(boardData, 'contributor');
             UIController.showView('contributor');
             UIController.closeJoinModal();
         } catch (error) {
@@ -115,67 +114,59 @@ const App = {
         }
     },
 
-    // Load existing board (for board page)
+    // Load board as contributor
+    loadBoardAsContributor: async function (boardId) {
+        try {
+            const boardData = await ApiService.getBoard(boardId);
+            BoardController.init(boardData, 'contributor');
+            UIController.showView('contributor');
+        } catch (error) {
+            console.error('Error loading board as contributor:', error);
+            alert('Unable to load board. Please check the URL.');
+        }
+    },
+
+    // Load board as viewer
+    loadBoardAsViewer: async function (viewToken) {
+        try {
+            const boardData = await ApiService.getBoardByViewToken(viewToken);
+            BoardController.init(boardData, 'viewer');
+            UIController.showView('viewer');
+        } catch (error) {
+            console.error('Error loading board as viewer:', error);
+            alert('Unable to load board. Please check the URL.');
+        }
+    },
+
+    // Load existing board (legacy support)
     loadBoard: async function (boardId) {
         try {
             const boardData = await ApiService.getBoard(boardId);
 
-            // Determine Role
+            // Determine Role from URL or localStorage
+            const urlParams = new URLSearchParams(window.location.search);
             let role = 'contributor'; // Default
-            const storedToken = localStorage.getItem(`hypewall_creator_${boardId}`);
 
-            if (storedToken) {
-                role = 'creator';
-            }
-
-            const isCreator = (role === 'creator');
-
-            // Initialize with role-specific boolean
-            BoardController.init(boardData, isCreator);
-
-            // STRICT VIEW ROUTING
-            if (role === 'creator') {
-                UIController.showView('creator');
+            if (urlParams.has('view')) {
+                role = 'viewer';
+            } else if (urlParams.has('contribute')) {
+                role = 'contributor';
             } else {
-                UIController.showView('contributor');
+                // Check if creator via localStorage
+                const storedToken = localStorage.getItem(`hypewall_creator_${boardId}`);
+                if (storedToken) {
+                    role = 'creator';
+                }
             }
+
+            BoardController.init(boardData, role);
+            UIController.showView(role);
 
         } catch (error) {
             console.error('Error loading board:', error);
             alert('Unable to load board. Please check the URL.');
         }
-    },
-
-    // Load board by view token (for view page only)
-    loadBoardByViewToken: async function (viewToken) {
-        try {
-            const boardData = await ApiService.getBoardByViewToken(viewToken);
-
-            // Initialize view controller
-            ViewController.init(boardData); // This populates the viewer data
-            UIController.showView('viewer'); // Strict routing
-
-        } catch (error) {
-            console.error('Error loading board by view token:', error);
-            alert('Unable to load board. Please check the URL.');
-        }
-    },
-    const boardData = await ApiService.getBoardByViewToken(viewToken);
-
-    // Initialize view controller for view page only
-    ViewController.init(boardData);
-    // View page handles its own UI, but purely for consistency if we reused components:
-    // UIController.updatePermissions('viewer'); 
-} catch (error) {
-    console.error('Error loading board by view token:', error);
-    alert('Unable to load board. Please check the URL.');
-}
-    },
-
-// Check if user is creator of the board (Deprecated in favor of local storage check, but kept for compatibility)
-checkIfCreator: function (boardData) {
-    return localStorage.getItem(`hypewall_creator_${boardData.id}`) !== null;
-}
+    }
 };
 
 // Initialize the application

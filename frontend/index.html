@@ -83,10 +83,7 @@
     <!-- 1. CREATOR DASHBOARD (Full Access)         -->
     <!-- ========================================== -->
     <div id="creator-dashboard" class="role-section hidden">
-        <div class="board-header">
-            <h1 id="creatorBoardTitle">Board for <span id="creatorRecipientName"></span></h1>
-        </div>
-
+        <!-- Share Section - ONLY for Creator -->
         <div class="share-section">
             <h3>🎉 Your Board is Ready!</h3>
             <div class="share-links">
@@ -109,6 +106,7 @@
             </div>
         </div>
 
+        <!-- Message Form - Creator can also post -->
         <div class="message-form">
             <h3>Add Your Message 💌</h3>
             <div class="form-group">
@@ -126,6 +124,7 @@
             <button class="create-button" onclick="postMessage('creator')">Post Message 🚀</button>
         </div>
 
+        <!-- Comments Section - Creator can view -->
         <div class="comments-section-embedded">
             <h3>Messages from Friends 👇</h3>
             <div class="comments-grid" id="creatorCommentsGrid"></div>
@@ -136,12 +135,9 @@
     <!-- 2. CONTRIBUTOR INTERFACE (Write Only)      -->
     <!-- ========================================== -->
     <div id="contributor-interface" class="role-section hidden">
-        <div class="board-header">
-            <h1 id="contributorBoardTitle">Write for <span id="contributorRecipientName"></span></h1>
-        </div>
-
+        <!-- Message Form ONLY - No links, No view button -->
         <div class="message-form">
-            <h3>Add Your Message 💌</h3>
+            <h3>Add Your Message for <span id="contributorRecipientName"></span> 💌</h3>
             <div class="form-group">
                 <label>Your Name</label>
                 <input type="text" id="contributorAuthor" placeholder="Anonymous">
@@ -165,6 +161,7 @@
         <div class="view-header">
             <h1>Messages for <span id="viewRecipientName"></span></h1>
             <p class="view-subtitle">All the love and appreciation in one place 💖</p>
+            <!-- NO BACK BUTTON for viewers -->
         </div>
 
         <div class="comments-container">

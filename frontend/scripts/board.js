@@ -2,7 +2,7 @@
 const BoardController = {
     // Board state
     currentBoard: null,
-    isCreator: false,
+    currentRole: 'contributor', // 'creator', 'contributor', 'viewer'
     selectedColor: '#FFD700',
     selectedAesthetic: 'professional',
 
@@ -24,63 +24,80 @@ const BoardController = {
         'retro-90s': 'linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%)'
     },
 
-    // Initialize board
-    init: function (boardData, creator = false) {
+    // Initialize board with strict role
+    init: function (boardData, role = 'contributor') {
         this.currentBoard = boardData;
-        this.isCreator = creator;
+        this.currentRole = role;
         this.selectedAesthetic = boardData.aesthetic;
 
         this.updateUI();
         this.setupColorPickers();
 
-        // Update recipient name in ALL titles
+        // Update recipient name based on role
         if (document.getElementById('creatorRecipientName'))
             document.getElementById('creatorRecipientName').textContent = boardData.recipient_name;
         if (document.getElementById('contributorRecipientName'))
             document.getElementById('contributorRecipientName').textContent = boardData.recipient_name;
+        if (document.getElementById('viewRecipientName'))
+            document.getElementById('viewRecipientName').textContent = boardData.recipient_name;
     },
 
-    // Update UI based on board state
+    // Update UI based on strict role
     updateUI: function () {
         // Apply aesthetic
         this.applyAesthetic(this.currentBoard.aesthetic);
 
-        if (this.isCreator) {
+        // Update share links ONLY for creator
+        if (this.currentRole === 'creator') {
             this.updateShareLinks();
-            // Load creator comments View
-            ViewController.init(this.currentBoard);
+        }
+
+        // Load comments for viewer and creator
+        if (this.currentRole === 'creator' || this.currentRole === 'viewer') {
+            ViewController.init(this.currentBoard, this.currentRole);
         }
     },
 
     // Apply aesthetic to board
     applyAesthetic: function (aesthetic) {
-        // Apply to all potential background containers
         const bg = this.aestheticBackgrounds[aesthetic] || this.aestheticBackgrounds['professional'];
 
-        const sections = ['creator-dashboard', 'contributor-interface', 'viewer-interface'];
-        sections.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.background = bg;
-        });
+        // Apply to specific sections based on role
+        if (this.currentRole === 'creator' && document.getElementById('creator-dashboard')) {
+            document.getElementById('creator-dashboard').style.background = bg;
+        } else if (this.currentRole === 'contributor' && document.getElementById('contributor-interface')) {
+            document.getElementById('contributor-interface').style.background = bg;
+        } else if (this.currentRole === 'viewer' && document.getElementById('viewer-interface')) {
+            document.getElementById('viewer-interface').style.background = bg;
+        }
     },
 
-    // Update share links
+    // Update share links - ONLY for creator
     updateShareLinks: function () {
-        if (!this.currentBoard) return;
+        if (!this.currentBoard || this.currentRole !== 'creator') return;
 
-        document.getElementById('contributorLink').value =
-            window.location.origin + (this.currentBoard.contributor_link || `/index.html?contribute=${this.currentBoard.id}`);
+        if (document.getElementById('contributorLink')) {
+            document.getElementById('contributorLink').value =
+                window.location.origin + (this.currentBoard.contributor_link || `/index.html?contribute=${this.currentBoard.id}`);
+        }
 
-        document.getElementById('viewLink').value =
-            window.location.origin + (this.currentBoard.view_link || `/index.html?view=${this.currentBoard.view_token}`);
+        if (document.getElementById('viewLink')) {
+            document.getElementById('viewLink').value =
+                window.location.origin + (this.currentBoard.view_link || `/index.html?view=${this.currentBoard.view_token}`);
+        }
 
-        document.getElementById('boardCode').textContent = this.currentBoard.join_code || 'ABC123';
+        if (document.getElementById('boardCode')) {
+            document.getElementById('boardCode').textContent = this.currentBoard.join_code || 'ABC123';
+        }
     },
 
-    // Setup color pickers on board pages (both creator and contributor)
+    // Setup color pickers on board pages
     setupColorPickers: function () {
-        this.setupColorPickerForId('creatorColorPicker');
-        this.setupColorPickerForId('contributorColorPicker');
+        // Only setup for roles that can post messages
+        if (this.currentRole === 'creator' || this.currentRole === 'contributor') {
+            this.setupColorPickerForId('creatorColorPicker');
+            this.setupColorPickerForId('contributorColorPicker');
+        }
     },
 
     setupColorPickerForId: function (elementId) {
@@ -109,19 +126,31 @@ const BoardController = {
     // Select color
     selectColor: function (color, element) {
         this.selectedColor = color;
-        document.querySelectorAll('#colorPicker .color-option').forEach(opt => {
+
+        // Update all color pickers
+        document.querySelectorAll('.color-option').forEach(opt => {
             opt.classList.remove('selected');
         });
-        element.classList.add('selected');
+
+        if (element) {
+            element.classList.add('selected');
+        }
     },
 
-    // Post message
+    // Post message - available for creator and contributor only
     postMessage: async function (rolePrefix = 'contributor') {
+        // Only allow posting if user is creator or contributor
+        if (this.currentRole === 'viewer') {
+            alert('Viewers cannot post messages!');
+            return;
+        }
+
         const authorInput = document.getElementById(`${rolePrefix}Author`);
         const messageInput = document.getElementById(`${rolePrefix}Message`);
 
-        const author = authorInput.value || 'Anonymous';
-        const message = messageInput.value;
+        // Use appropriate input IDs based on role
+        const author = authorInput ? authorInput.value : 'Anonymous';
+        const message = messageInput ? messageInput.value : '';
 
         if (!message.trim()) {
             alert('Please write a message!');
@@ -136,17 +165,16 @@ const BoardController = {
             });
 
             // Clear form
-            authorInput.value = '';
-            messageInput.value = '';
+            if (authorInput) authorInput.value = '';
+            if (messageInput) messageInput.value = '';
 
             // Show success message
             alert('Message posted successfully! ✨');
 
             // If creator, refresh comments immediately
-            if (rolePrefix === 'creator') {
+            if (this.currentRole === 'creator') {
                 ViewController.loadComments();
             }
-            // If contributor, we just stay on the write page (as per "one file" request)
 
         } catch (error) {
             alert('Error posting message! Please try again.');
@@ -154,26 +182,25 @@ const BoardController = {
         }
     },
 
-    // Navigate to view page (comments only)
-    navigateToViewPage: function () {
-        if (!this.currentBoard) return;
-
-        // Initialize view page with current board data
-        ViewController.init(this.currentBoard);
-    },
-
-    // Copy link
+    // Copy link - ONLY for creator
     copyLink: function (inputId) {
+        if (this.currentRole !== 'creator') {
+            alert('Only the creator can copy links!');
+            return;
+        }
+
         const input = document.getElementById(inputId);
-        input.select();
-        document.execCommand('copy');
-        alert('Link copied! 📋');
+        if (input) {
+            input.select();
+            document.execCommand('copy');
+            alert('Link copied! 📋');
+        }
     },
 
     // Reset board
     reset: function () {
         this.currentBoard = null;
-        this.isCreator = false;
+        this.currentRole = 'contributor';
         this.selectedColor = '#FFD700';
         this.selectedAesthetic = 'professional';
     }

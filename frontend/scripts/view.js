@@ -3,8 +3,9 @@ const ViewController = {
     // View state
     currentBoard: null,
     selectedAesthetic: 'professional',
+    currentRole: 'viewer',
 
-    // Aesthetic background mapping (same as board)
+    // Aesthetic background mapping
     aestheticBackgrounds: {
         'professional': 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
         'dark-academia': 'linear-gradient(135deg, #2c1810 0%, #4a2c1a 100%)',
@@ -14,9 +15,10 @@ const ViewController = {
     },
 
     // Initialize view page
-    init: function (boardData) {
+    init: function (boardData, role = 'viewer') {
         this.currentBoard = boardData;
         this.selectedAesthetic = boardData.aesthetic;
+        this.currentRole = role;
 
         this.setupViewPage();
         this.loadComments();
@@ -31,14 +33,26 @@ const ViewController = {
         // Apply aesthetic background
         this.applyAestheticBackground();
 
-        // Show view page, hide other pages
-        UIController.showViewPage();
+        // Hide back button for viewers
+        if (this.currentRole === 'viewer') {
+            this.hideBackButton();
+        }
     },
 
     // Apply aesthetic background to view page
     applyAestheticBackground: function () {
-        const viewPage = document.getElementById('viewPage');
-        viewPage.style.background = this.aestheticBackgrounds[this.selectedAesthetic] || this.aestheticBackgrounds['professional'];
+        const viewerInterface = document.getElementById('viewer-interface');
+        if (viewerInterface) {
+            viewerInterface.style.background = this.aestheticBackgrounds[this.selectedAesthetic] || this.aestheticBackgrounds['professional'];
+        }
+    },
+
+    // Hide back button for viewers
+    hideBackButton: function () {
+        const backButtons = document.querySelectorAll('.btn-back-to-board, .btn-view-messages');
+        backButtons.forEach(button => {
+            button.style.display = 'none';
+        });
     },
 
     // Load comments from API
@@ -103,33 +117,20 @@ const ViewController = {
 
     // Setup auto-refresh for new comments
     setupAutoRefresh: function () {
-        // Auto-refresh comments every 5 seconds
+        // Auto-refresh comments every 5 seconds for viewers and creators
         setInterval(() => {
-            if (this.currentBoard && document.getElementById('viewPage').classList.contains('active')) {
+            if (this.currentBoard &&
+                (document.getElementById('viewer-interface') && !document.getElementById('viewer-interface').classList.contains('hidden')) ||
+                (document.getElementById('creator-dashboard') && !document.getElementById('creator-dashboard').classList.contains('hidden'))) {
                 this.loadComments();
             }
         }, 5000);
-    },
-
-    // Return to board page
-    returnToBoard: function () {
-        if (BoardController.currentBoard) {
-            // Clear the form if needed
-            if (document.getElementById('commentAuthor')) {
-                document.getElementById('commentAuthor').value = '';
-            }
-            if (document.getElementById('commentMessage')) {
-                document.getElementById('commentMessage').value = '';
-            }
-        }
-
-        // Show board page
-        UIController.showBoardPage();
     },
 
     // Reset view controller
     reset: function () {
         this.currentBoard = null;
         this.selectedAesthetic = 'professional';
+        this.currentRole = 'viewer';
     }
 };
