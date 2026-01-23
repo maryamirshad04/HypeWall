@@ -34,6 +34,7 @@ def create_board():
     board_id = str(uuid.uuid4())
     join_code = generate_code()
     view_token = str(uuid.uuid4())
+    creator_token = str(uuid.uuid4())
     
     board = {
         'id': board_id,
@@ -41,6 +42,7 @@ def create_board():
         'recipient_name': recipient_name,
         'join_code': join_code,
         'view_token': view_token,
+        'creator_token': creator_token,
         'created_at': datetime.now().isoformat(),
         'contributor_link': f'/index.html?contribute={board_id}',
         'view_link': f'/index.html?view={view_token}'
@@ -62,6 +64,7 @@ def get_board_by_code(code):
         return jsonify({'error': 'Board not found'}), 404
         
     board = results[0].to_dict()
+    # Filter sensitive info
     return jsonify({
         'id': board['id'],
         'aesthetic': board['aesthetic'],
@@ -76,7 +79,16 @@ def get_board(board_id):
     doc = doc_ref.get()
     
     if doc.exists:
-        return jsonify(doc.to_dict()), 200
+        board = doc.to_dict()
+        # Remove sensitive tokens to prevent unauthorized access
+        # Only return what's needed for the contributor view
+        safe_board = {
+            'id': board['id'],
+            'aesthetic': board['aesthetic'],
+            'recipient_name': board['recipient_name'],
+            'created_at': board['created_at']
+        }
+        return jsonify(safe_board), 200
     return jsonify({'error': 'Board not found'}), 404
 
 @app.route('/api/boards/view/<view_token>', methods=['GET'])

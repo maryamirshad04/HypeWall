@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KudoVibe - Gen Z Kudoboard</title>
-    
+
     <!-- CSS Files -->
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/animations.css">
 </head>
+
 <body>
     <div class="floating-overlay" id="floatingOverlay"></div>
-    
+
     <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">HYPE WALL</div>
@@ -30,13 +32,13 @@
     <!-- Landing Page -->
     <section class="landing" id="landing">
         <div class="floating-cards" id="floatingCards"></div>
-        
+
         <div class="landing-content">
             <h1>HYPE WALL</h1>
             <p>Create aesthetic boards that hit different 💫</p>
             <div class="cta-container">
                 <button class="cta-button" onclick="toggleFloatingCar()">Create Your Vibe</button>
-                
+
                 <!-- Floating Card Car Layout -->
                 <div class="floating-card-car" id="floatingCardCar">
                     <!-- Car buttons will be populated by JS -->
@@ -52,7 +54,7 @@
                 <h2>Create Your Board</h2>
                 <button class="close-modal" onclick="closeLibrary()">&times;</button>
             </div>
-            
+
             <div class="form-group">
                 <label>Who is this for? 💖</label>
                 <input type="text" id="recipientName" placeholder="Enter their name..." autofocus>
@@ -77,16 +79,15 @@
         </div>
     </div>
 
-    <!-- Board Page (Form and Links) -->
-    <div class="board-page" id="boardPage">
+    <!-- ========================================== -->
+    <!-- 1. CREATOR DASHBOARD (Full Access)         -->
+    <!-- ========================================== -->
+    <div id="creator-dashboard" class="role-section hidden">
         <div class="board-header">
-            <h1 id="boardTitle">Board for <span id="boardRecipientName"></span></h1>
-            <button class="btn-view-messages" onclick="navigateToViewPage()">
-                👁️ View Messages
-            </button>
+            <h1 id="creatorBoardTitle">Board for <span id="creatorRecipientName"></span></h1>
         </div>
 
-        <div class="share-section" id="creatorView">
+        <div class="share-section">
             <h3>🎉 Your Board is Ready!</h3>
             <div class="share-links">
                 <div class="share-item">
@@ -112,33 +113,65 @@
             <h3>Add Your Message 💌</h3>
             <div class="form-group">
                 <label>Your Name</label>
-                <input type="text" id="commentAuthor" placeholder="Anonymous">
+                <input type="text" id="creatorAuthor" placeholder="Creator">
             </div>
             <div class="form-group">
                 <label>Pick a Color</label>
-                <div class="color-picker" id="colorPicker"></div>
+                <div class="color-picker" id="creatorColorPicker"></div>
             </div>
             <div class="form-group">
                 <label>Your Message</label>
-                <textarea id="commentMessage" placeholder="Say something nice..." rows="4"></textarea>
+                <textarea id="creatorMessage" placeholder="Say something nice..." rows="4"></textarea>
             </div>
-            <button class="create-button" onclick="postMessage()">Post Message 🚀</button>
+            <button class="create-button" onclick="postMessage('creator')">Post Message 🚀</button>
+        </div>
+
+        <div class="comments-section-embedded">
+            <h3>Messages from Friends 👇</h3>
+            <div class="comments-grid" id="creatorCommentsGrid"></div>
         </div>
     </div>
 
-    <!-- View Page (Comments Only) -->
-    <div class="view-page" id="viewPage">
+    <!-- ========================================== -->
+    <!-- 2. CONTRIBUTOR INTERFACE (Write Only)      -->
+    <!-- ========================================== -->
+    <div id="contributor-interface" class="role-section hidden">
+        <div class="board-header">
+            <h1 id="contributorBoardTitle">Write for <span id="contributorRecipientName"></span></h1>
+        </div>
+
+        <div class="message-form">
+            <h3>Add Your Message 💌</h3>
+            <div class="form-group">
+                <label>Your Name</label>
+                <input type="text" id="contributorAuthor" placeholder="Anonymous">
+            </div>
+            <div class="form-group">
+                <label>Pick a Color</label>
+                <div class="color-picker" id="contributorColorPicker"></div>
+            </div>
+            <div class="form-group">
+                <label>Your Message</label>
+                <textarea id="contributorMessage" placeholder="Say something nice..." rows="4"></textarea>
+            </div>
+            <button class="create-button" onclick="postMessage('contributor')">Post Message 🚀</button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- 3. VIEWER INTERFACE (Read Only)            -->
+    <!-- ========================================== -->
+    <div id="viewer-interface" class="role-section hidden">
         <div class="view-header">
             <h1>Messages for <span id="viewRecipientName"></span></h1>
             <p class="view-subtitle">All the love and appreciation in one place 💖</p>
-            <button class="btn-back-to-board" onclick="returnToBoard()">← Back to Board</button>
         </div>
-        
+
         <div class="comments-container">
-            <div class="comments-grid" id="commentsGrid">
+            <div class="comments-grid" id="viewerCommentsGrid">
                 <!-- Comments will be loaded here -->
             </div>
-            
+
             <div class="empty-state" id="emptyState">
                 <div class="empty-icon">💌</div>
                 <h3>No messages yet</h3>
@@ -155,4 +188,5 @@
     <script src="scripts/view.js"></script>
     <script src="scripts/main.js"></script>
 </body>
+
 </html>

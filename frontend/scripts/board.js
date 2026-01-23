@@ -25,84 +25,89 @@ const BoardController = {
     },
 
     // Initialize board
-    init: function(boardData, creator = false) {
+    init: function (boardData, creator = false) {
         this.currentBoard = boardData;
         this.isCreator = creator;
         this.selectedAesthetic = boardData.aesthetic;
-        
+
         this.updateUI();
-        this.setupColorPicker();
-        
-        // Update recipient name in title
-        document.getElementById('boardRecipientName').textContent = boardData.recipient_name;
+        this.setupColorPickers();
+
+        // Update recipient name in ALL titles
+        if (document.getElementById('creatorRecipientName'))
+            document.getElementById('creatorRecipientName').textContent = boardData.recipient_name;
+        if (document.getElementById('contributorRecipientName'))
+            document.getElementById('contributorRecipientName').textContent = boardData.recipient_name;
     },
 
     // Update UI based on board state
-    updateUI: function() {
-        // Update title is now handled in init
-        
+    updateUI: function () {
         // Apply aesthetic
         this.applyAesthetic(this.currentBoard.aesthetic);
-        
-        // Show/hide creator view
-        const creatorView = document.getElementById('creatorView');
+
         if (this.isCreator) {
-            creatorView.classList.remove('hidden');
             this.updateShareLinks();
-        } else {
-            creatorView.classList.add('hidden');
+            // Load creator comments View
+            ViewController.init(this.currentBoard);
         }
-        
-        // Show board page
-        UIController.showBoardPage();
     },
 
     // Apply aesthetic to board
-    applyAesthetic: function(aesthetic) {
-        const boardPage = document.getElementById('boardPage');
-        boardPage.style.background = this.aestheticBackgrounds[aesthetic] || this.aestheticBackgrounds['professional'];
+    applyAesthetic: function (aesthetic) {
+        // Apply to all potential background containers
+        const bg = this.aestheticBackgrounds[aesthetic] || this.aestheticBackgrounds['professional'];
+
+        const sections = ['creator-dashboard', 'contributor-interface', 'viewer-interface'];
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.background = bg;
+        });
     },
 
     // Update share links
-    updateShareLinks: function() {
+    updateShareLinks: function () {
         if (!this.currentBoard) return;
-        
-        document.getElementById('contributorLink').value = 
+
+        document.getElementById('contributorLink').value =
             window.location.origin + (this.currentBoard.contributor_link || `/index.html?contribute=${this.currentBoard.id}`);
-        
-        document.getElementById('viewLink').value = 
+
+        document.getElementById('viewLink').value =
             window.location.origin + (this.currentBoard.view_link || `/index.html?view=${this.currentBoard.view_token}`);
-        
+
         document.getElementById('boardCode').textContent = this.currentBoard.join_code || 'ABC123';
     },
 
-    // Setup color picker on board page
-    setupColorPicker: function() {
-        const colorPicker = document.getElementById('colorPicker');
+    // Setup color pickers on board pages (both creator and contributor)
+    setupColorPickers: function () {
+        this.setupColorPickerForId('creatorColorPicker');
+        this.setupColorPickerForId('contributorColorPicker');
+    },
+
+    setupColorPickerForId: function (elementId) {
+        const colorPicker = document.getElementById(elementId);
         if (!colorPicker) return;
-        
+
         colorPicker.innerHTML = '';
         const colors = this.aestheticColors[this.selectedAesthetic] || this.aestheticColors['professional'];
-        
+
         colors.forEach((color, index) => {
             const colorOption = document.createElement('div');
             colorOption.className = 'color-option';
             if (index === 0) colorOption.classList.add('selected');
-            
+
             colorOption.style.backgroundColor = color;
-            colorOption.title = color;
             colorOption.onclick = (e) => {
                 this.selectColor(color, e.currentTarget);
             };
-            
+
             colorPicker.appendChild(colorOption);
         });
-        
+
         this.selectedColor = colors[0];
     },
 
     // Select color
-    selectColor: function(color, element) {
+    selectColor: function (color, element) {
         this.selectedColor = color;
         document.querySelectorAll('#colorPicker .color-option').forEach(opt => {
             opt.classList.remove('selected');
@@ -110,33 +115,39 @@ const BoardController = {
         element.classList.add('selected');
     },
 
-    // Post message from board page
-    postMessage: async function() {
-        const author = document.getElementById('commentAuthor').value || 'Anonymous';
-        const message = document.getElementById('commentMessage').value;
-        
+    // Post message
+    postMessage: async function (rolePrefix = 'contributor') {
+        const authorInput = document.getElementById(`${rolePrefix}Author`);
+        const messageInput = document.getElementById(`${rolePrefix}Message`);
+
+        const author = authorInput.value || 'Anonymous';
+        const message = messageInput.value;
+
         if (!message.trim()) {
             alert('Please write a message!');
             return;
         }
-        
+
         try {
             await ApiService.addComment(this.currentBoard.id, {
                 author: author,
                 message: message,
                 color: this.selectedColor
             });
-            
+
             // Clear form
-            document.getElementById('commentAuthor').value = '';
-            document.getElementById('commentMessage').value = '';
-            
+            authorInput.value = '';
+            messageInput.value = '';
+
             // Show success message
             alert('Message posted successfully! ✨');
-            
-            // Auto-navigate to view page to see the new message
-            this.navigateToViewPage();
-            
+
+            // If creator, refresh comments immediately
+            if (rolePrefix === 'creator') {
+                ViewController.loadComments();
+            }
+            // If contributor, we just stay on the write page (as per "one file" request)
+
         } catch (error) {
             alert('Error posting message! Please try again.');
             console.error('Error posting message:', error);
@@ -144,15 +155,15 @@ const BoardController = {
     },
 
     // Navigate to view page (comments only)
-    navigateToViewPage: function() {
+    navigateToViewPage: function () {
         if (!this.currentBoard) return;
-        
+
         // Initialize view page with current board data
         ViewController.init(this.currentBoard);
     },
 
     // Copy link
-    copyLink: function(inputId) {
+    copyLink: function (inputId) {
         const input = document.getElementById(inputId);
         input.select();
         document.execCommand('copy');
@@ -160,7 +171,7 @@ const BoardController = {
     },
 
     // Reset board
-    reset: function() {
+    reset: function () {
         this.currentBoard = null;
         this.isCreator = false;
         this.selectedColor = '#FFD700';

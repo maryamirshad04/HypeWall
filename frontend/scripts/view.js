@@ -3,7 +3,7 @@ const ViewController = {
     // View state
     currentBoard: null,
     selectedAesthetic: 'professional',
-    
+
     // Aesthetic background mapping (same as board)
     aestheticBackgrounds: {
         'professional': 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
@@ -14,37 +14,37 @@ const ViewController = {
     },
 
     // Initialize view page
-    init: function(boardData) {
+    init: function (boardData) {
         this.currentBoard = boardData;
         this.selectedAesthetic = boardData.aesthetic;
-        
+
         this.setupViewPage();
         this.loadComments();
         this.setupAutoRefresh();
     },
-    
+
     // Setup view page UI
-    setupViewPage: function() {
+    setupViewPage: function () {
         // Update recipient name
         document.getElementById('viewRecipientName').textContent = this.currentBoard.recipient_name;
-        
+
         // Apply aesthetic background
         this.applyAestheticBackground();
-        
+
         // Show view page, hide other pages
         UIController.showViewPage();
     },
-    
+
     // Apply aesthetic background to view page
-    applyAestheticBackground: function() {
+    applyAestheticBackground: function () {
         const viewPage = document.getElementById('viewPage');
         viewPage.style.background = this.aestheticBackgrounds[this.selectedAesthetic] || this.aestheticBackgrounds['professional'];
     },
-    
+
     // Load comments from API
-    loadComments: async function() {
+    loadComments: async function () {
         if (!this.currentBoard) return;
-        
+
         try {
             const comments = await ApiService.getComments(this.currentBoard.id);
             this.renderComments(comments);
@@ -52,25 +52,31 @@ const ViewController = {
             console.error('Error loading comments:', error);
         }
     },
-    
+
     // Render comments on view page
-    renderComments: function(comments) {
-        const grid = document.getElementById('commentsGrid');
-        const emptyState = document.getElementById('emptyState');
-        
+    renderComments: function (comments) {
+        // Render for Viewer Dashboard
+        this.renderCommentsToGrid('viewerCommentsGrid', 'emptyState', comments);
+
+        // Render for Creator Dashboard (Embedded)
+        this.renderCommentsToGrid('creatorCommentsGrid', null, comments);
+    },
+
+    renderCommentsToGrid: function (gridId, emptyId, comments) {
+        const grid = document.getElementById(gridId);
         if (!grid) return;
-        
-        // Show/hide empty state
-        if (comments.length === 0) {
-            emptyState.style.display = 'flex';
-            grid.innerHTML = '';
-            return;
-        } else {
-            emptyState.style.display = 'none';
-        }
-        
+
         grid.innerHTML = '';
-        
+
+        if (comments.length === 0 && emptyId) {
+            const emptyState = document.getElementById(emptyId);
+            if (emptyState) emptyState.style.display = 'flex';
+            return;
+        } else if (emptyId) {
+            const emptyState = document.getElementById(emptyId);
+            if (emptyState) emptyState.style.display = 'none';
+        }
+
         comments.forEach(comment => {
             const card = document.createElement('div');
             card.className = 'comment-card';
@@ -83,9 +89,9 @@ const ViewController = {
             grid.appendChild(card);
         });
     },
-    
+
     // Format date for display
-    formatDate: function(dateString) {
+    formatDate: function (dateString) {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', {
             month: 'short',
@@ -94,9 +100,9 @@ const ViewController = {
             minute: '2-digit'
         });
     },
-    
+
     // Setup auto-refresh for new comments
-    setupAutoRefresh: function() {
+    setupAutoRefresh: function () {
         // Auto-refresh comments every 5 seconds
         setInterval(() => {
             if (this.currentBoard && document.getElementById('viewPage').classList.contains('active')) {
@@ -104,9 +110,9 @@ const ViewController = {
             }
         }, 5000);
     },
-    
+
     // Return to board page
-    returnToBoard: function() {
+    returnToBoard: function () {
         if (BoardController.currentBoard) {
             // Clear the form if needed
             if (document.getElementById('commentAuthor')) {
@@ -116,13 +122,13 @@ const ViewController = {
                 document.getElementById('commentMessage').value = '';
             }
         }
-        
+
         // Show board page
         UIController.showBoardPage();
     },
-    
+
     // Reset view controller
-    reset: function() {
+    reset: function () {
         this.currentBoard = null;
         this.selectedAesthetic = 'professional';
     }

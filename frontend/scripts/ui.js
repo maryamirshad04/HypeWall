@@ -13,7 +13,7 @@ const UIController = {
     },
 
     // Initialize UI
-    init: function() {
+    init: function () {
         this.cacheElements();
         this.setupEventListeners();
         this.renderAesthetics();
@@ -21,7 +21,7 @@ const UIController = {
     },
 
     // Cache DOM elements
-    cacheElements: function() {
+    cacheElements: function () {
         this.elements.libraryDropdown = document.getElementById('libraryDropdown');
         this.elements.floatingCardCar = document.getElementById('floatingCardCar');
         this.elements.libraryModal = document.getElementById('libraryModal');
@@ -33,7 +33,7 @@ const UIController = {
     },
 
     // Setup event listeners
-    setupEventListeners: function() {
+    setupEventListeners: function () {
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             this.handleClickOutside(e);
@@ -46,29 +46,29 @@ const UIController = {
     },
 
     // Handle click outside dropdowns
-    handleClickOutside: function(e) {
+    handleClickOutside: function (e) {
         const navDropdown = this.elements.libraryDropdown;
         const floatingCar = this.elements.floatingCardCar;
         const libraryBtn = document.querySelector('.btn-library');
         const ctaContainer = document.querySelector('.cta-container');
-        
+
         if (!navDropdown.contains(e.target) && !libraryBtn.contains(e.target)) {
             navDropdown.classList.remove('active');
         }
-        
+
         if (!floatingCar.contains(e.target) && !ctaContainer.contains(e.target)) {
             floatingCar.classList.remove('active');
         }
     },
 
     // Handle mouse move for parallax
-    handleMouseMove: function(e) {
+    handleMouseMove: function (e) {
         const cards = document.querySelectorAll('.floating-card');
         if (!cards.length) return;
-        
+
         const mouseX = e.clientX / window.innerWidth;
         const mouseY = e.clientY / window.innerHeight;
-        
+
         cards.forEach((card, index) => {
             const speed = (index % 3 + 1) * 10;
             const x = (mouseX - 0.5) * speed;
@@ -78,48 +78,48 @@ const UIController = {
     },
 
     // Create floating cards background
-    createFloatingCards: function() {
+    createFloatingCards: function () {
         if (!this.elements.floatingCards) return;
-        
+
         const numCards = 15;
         this.elements.floatingCards.innerHTML = '';
 
         for (let i = 0; i < numCards; i++) {
             const card = document.createElement('div');
             card.className = 'floating-card';
-            
+
             const design = DESIGN_CARDS[Math.floor(Math.random() * DESIGN_CARDS.length)];
             card.style.background = design.bg;
-            
+
             // Random horizontal position
             card.style.left = Math.random() * 100 + '%';
-            
+
             // Random animation duration
             const duration = 15 + Math.random() * 10;
             card.style.animationDuration = duration + 's';
-            
+
             // Random delay
             card.style.animationDelay = Math.random() * 5 + 's';
-            
+
             // Random size variation
             const scale = 0.8 + Math.random() * 0.4;
             card.style.transform = `scale(${scale})`;
-            
+
             this.elements.floatingCards.appendChild(card);
         }
     },
 
     // Render aesthetics in dropdown and car
-    renderAesthetics: function() {
+    renderAesthetics: function () {
         this.renderDropdownAesthetics();
         this.renderCarAesthetics();
     },
 
     // Render aesthetics in dropdown
-    renderDropdownAesthetics: function() {
+    renderDropdownAesthetics: function () {
         const dropdown = this.elements.libraryDropdown;
         if (!dropdown) return;
-        
+
         dropdown.innerHTML = CONSTANTS.AESTHETICS.map(aesthetic => `
             <div class="dropdown-item" data-aesthetic="${aesthetic}" onclick="selectAestheticFromDropdown('${aesthetic}')">
                 <div class="dropdown-icon">
@@ -134,13 +134,13 @@ const UIController = {
     },
 
     // Render aesthetics in car layout
-    renderCarAesthetics: function() {
+    renderCarAesthetics: function () {
         const car = this.elements.floatingCardCar;
         if (!car) return;
-        
+
         const firstThree = CONSTANTS.AESTHETICS.slice(0, 3);
         const lastTwo = CONSTANTS.AESTHETICS.slice(3);
-        
+
         const carLayout = `
             <div class="car-layout">
                 ${firstThree.map(aesthetic => `
@@ -169,24 +169,24 @@ const UIController = {
                 `).join('')}
             </div>
         `;
-        
+
         car.innerHTML = carLayout;
     },
 
     // Toggle library dropdown
-    toggleLibrary: function() {
+    toggleLibrary: function () {
         this.elements.libraryDropdown.classList.toggle('active');
         this.elements.floatingCardCar.classList.remove('active');
     },
 
     // Toggle floating card car
-    toggleFloatingCar: function() {
+    toggleFloatingCar: function () {
         this.elements.floatingCardCar.classList.toggle('active');
         this.elements.libraryDropdown.classList.remove('active');
     },
 
     // Open library modal
-    openLibraryModal: function() {
+    openLibraryModal: function () {
         this.elements.libraryModal.classList.add('active');
         setTimeout(() => {
             document.getElementById('recipientName').focus();
@@ -194,80 +194,50 @@ const UIController = {
     },
 
     // Close library modal
-    closeLibrary: function() {
+    closeLibrary: function () {
         this.elements.libraryModal.classList.remove('active');
         document.getElementById('recipientName').value = '';
     },
 
     // Open join modal
-    openJoinModal: function() {
+    openJoinModal: function () {
         this.elements.joinModal.classList.add('active');
     },
 
     // Close join modal
-    closeJoinModal: function() {
+    closeJoinModal: function () {
         this.elements.joinModal.classList.remove('active');
     },
 
-    // Show board page (form and links)
-    showBoardPage: function() {
-        // Hide all pages
+    // Show strictly one view
+    showView: function (viewName) {
+        // Hide all views first
         this.elements.landingPage.style.display = 'none';
-        
-        const viewPage = document.getElementById('viewPage');
-        if (viewPage) {
-            viewPage.style.display = 'none';
-            viewPage.classList.remove('active');
-        }
-        
-        // Show board page
-        this.elements.boardPage.style.display = 'block';
-        this.elements.boardPage.classList.add('active');
-    },
 
-    // Show view page (comments only)
-    showViewPage: function() {
-        // Hide all pages
-        this.elements.landingPage.style.display = 'none';
-        this.elements.boardPage.style.display = 'none';
-        this.elements.boardPage.classList.remove('active');
-        
-        // Show view page
-        const viewPage = document.getElementById('viewPage');
-        if (viewPage) {
-            viewPage.style.display = 'block';
-            viewPage.classList.add('active');
+        ['creator-dashboard', 'contributor-interface', 'viewer-interface'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+        });
+
+        // Show specific view
+        if (viewName === 'landing') {
+            this.elements.landingPage.style.display = 'flex';
+        } else if (viewName === 'creator') {
+            document.getElementById('creator-dashboard').classList.remove('hidden');
+        } else if (viewName === 'contributor') {
+            document.getElementById('contributor-interface').classList.remove('hidden');
+        } else if (viewName === 'viewer') {
+            document.getElementById('viewer-interface').classList.remove('hidden');
         }
     },
 
-    // Show landing page
-    showLandingPage: function() {
-        this.elements.landingPage.style.display = 'flex';
-        
-        // Hide other pages
-        this.elements.boardPage.style.display = 'none';
-        this.elements.boardPage.classList.remove('active');
-        
-        const viewPage = document.getElementById('viewPage');
-        if (viewPage) {
-            viewPage.style.display = 'none';
-            viewPage.classList.remove('active');
-        }
-    },
-
-    // Setup color picker (REMOVED - now handled by BoardController)
-    // setupColorPicker: function(aesthetic) {
-    //     if (!this.elements.colorPicker) return;
-        
-    //     const colors = BoardController.aestheticColors[aesthetic] || BoardController.aestheticColors['professional'];
-    //     this.elements.colorPicker.innerHTML = '';
-        
-    //     colors.forEach((color, i) => {
-    //         const div = document.createElement('div');
-    //         div.className = 'color-option' + (i === 0 ? ' selected' : '');
-    //         div.style.backgroundColor = color;
-    //         div.onclick = () => BoardController.selectColor(color, div);
-    //         this.elements.colorPicker.appendChild(div);
-    //     });
-    // }
+    // Deprecated methods kept safe to avoid crashes if called, 
+    // but they now delegate to showView or do nothing if irrelevant.
+    showBoardPage: function () { },
+    showViewPage: function () { },
+    showLandingPage: function () { this.showView('landing'); },
+    updatePermissions: function (role) {
+        // This is now handled by showView called from main.js
+        console.log('Legacy updatePermissions called - ignored in favor of strict view routing.');
+    }
 };
