@@ -10,6 +10,27 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/animations.css">
+
+    <style>
+        /* Additional role-based styles */
+        #contributor-interface {
+            padding: 120px 2rem 2rem;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #contributor-interface .message-form {
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .role-section.hidden {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -121,7 +142,7 @@
                 <label>Your Message</label>
                 <textarea id="creatorMessage" placeholder="Say something nice..." rows="4"></textarea>
             </div>
-            <button class="create-button" onclick="postMessage('creator')">Post Message 🚀</button>
+            <button class="create-button" onclick="BoardController.postMessage()">Post Message 🚀</button>
         </div>
 
         <!-- Comments Section - Creator can view -->
@@ -150,7 +171,7 @@
                 <label>Your Message</label>
                 <textarea id="contributorMessage" placeholder="Say something nice..." rows="4"></textarea>
             </div>
-            <button class="create-button" onclick="postMessage('contributor')">Post Message 🚀</button>
+            <button class="create-button" onclick="BoardController.postMessage()">Post Message 🚀</button>
         </div>
     </div>
 
@@ -184,6 +205,21 @@
     <script src="scripts/board.js"></script>
     <script src="scripts/view.js"></script>
     <script src="scripts/main.js"></script>
+
+    <script>
+        // Debug helper
+        window.debugBoard = function () {
+            console.log('=== DEBUG INFO ===');
+            console.log('BoardController.currentBoard:', BoardController.currentBoard);
+            console.log('BoardController.currentRole:', BoardController.currentRole);
+            console.log('BoardController.selectedColor:', BoardController.selectedColor);
+            console.log('creatorAuthor element:', document.getElementById('creatorAuthor'));
+            console.log('creatorMessage element:', document.getElementById('creatorMessage'));
+            console.log('creatorAuthor value:', document.getElementById('creatorAuthor')?.value);
+            console.log('creatorMessage value:', document.getElementById('creatorMessage')?.value);
+            console.log('=== END DEBUG ===');
+        };
+    </script>
 </body>
 
 </html>

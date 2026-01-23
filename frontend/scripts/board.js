@@ -137,36 +137,67 @@ const BoardController = {
         }
     },
 
-    // Post message - available for creator and contributor only
-    postMessage: async function (rolePrefix = 'contributor') {
+    // Post message - FIXED VERSION
+    postMessage: async function () {
         // Only allow posting if user is creator or contributor
         if (this.currentRole === 'viewer') {
             alert('Viewers cannot post messages!');
             return;
         }
 
-        const authorInput = document.getElementById(`${rolePrefix}Author`);
-        const messageInput = document.getElementById(`${rolePrefix}Message`);
+        // Get form values based on current role
+        let author, message;
 
-        // Use appropriate input IDs based on role
-        const author = authorInput ? authorInput.value : 'Anonymous';
-        const message = messageInput ? messageInput.value : '';
+        if (this.currentRole === 'creator') {
+            const authorInput = document.getElementById('creatorAuthor');
+            const messageInput = document.getElementById('creatorMessage');
 
-        if (!message.trim()) {
+            if (!authorInput || !messageInput) {
+                console.error('Creator form elements not found!');
+                console.log('Looking for creatorAuthor:', document.getElementById('creatorAuthor'));
+                console.log('Looking for creatorMessage:', document.getElementById('creatorMessage'));
+                return;
+            }
+
+            author = authorInput.value.trim() || 'Creator';
+            message = messageInput.value.trim();
+        } else if (this.currentRole === 'contributor') {
+            const authorInput = document.getElementById('contributorAuthor');
+            const messageInput = document.getElementById('contributorMessage');
+
+            if (!authorInput || !messageInput) {
+                console.error('Contributor form elements not found!');
+                return;
+            }
+
+            author = authorInput.value.trim() || 'Anonymous';
+            message = messageInput.value.trim();
+        }
+
+        if (!message) {
             alert('Please write a message!');
             return;
         }
 
+        console.log('Posting message:', { author, message, color: this.selectedColor, boardId: this.currentBoard.id });
+
         try {
-            await ApiService.addComment(this.currentBoard.id, {
+            const response = await ApiService.addComment(this.currentBoard.id, {
                 author: author,
                 message: message,
                 color: this.selectedColor
             });
 
-            // Clear form
-            if (authorInput) authorInput.value = '';
-            if (messageInput) messageInput.value = '';
+            console.log('Message posted successfully:', response);
+
+            // Clear form based on role
+            if (this.currentRole === 'creator') {
+                if (document.getElementById('creatorAuthor')) document.getElementById('creatorAuthor').value = '';
+                if (document.getElementById('creatorMessage')) document.getElementById('creatorMessage').value = '';
+            } else if (this.currentRole === 'contributor') {
+                if (document.getElementById('contributorAuthor')) document.getElementById('contributorAuthor').value = '';
+                if (document.getElementById('contributorMessage')) document.getElementById('contributorMessage').value = '';
+            }
 
             // Show success message
             alert('Message posted successfully! ✨');
@@ -177,7 +208,7 @@ const BoardController = {
             }
 
         } catch (error) {
-            alert('Error posting message! Please try again.');
+            alert('Error posting message! Please check console for details.');
             console.error('Error posting message:', error);
         }
     },

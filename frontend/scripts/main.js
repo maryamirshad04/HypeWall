@@ -23,9 +23,9 @@ const App = {
         window.closeJoinModal = () => UIController.closeJoinModal();
         window.createBoard = () => this.createBoard();
         window.joinBoard = () => this.joinBoard();
-        window.postMessage = () => BoardController.postMessage();
         window.copyLink = (inputId) => BoardController.copyLink(inputId);
         window.closeLibrary = () => UIController.closeLibrary();
+        // Note: postMessage is now handled directly by BoardController
     },
 
     // Check for board in URL parameters
@@ -81,6 +81,8 @@ const App = {
             BoardController.init(boardData, 'creator');
             UIController.showView('creator');
             UIController.closeLibrary();
+
+            console.log('Board created successfully!', boardData);
         } catch (error) {
             alert('Error creating board. Make sure Flask server is running!');
             console.error('Error creating board:', error);
@@ -108,6 +110,8 @@ const App = {
             BoardController.init(boardData, 'contributor');
             UIController.showView('contributor');
             UIController.closeJoinModal();
+
+            console.log('Joined board as contributor:', boardData);
         } catch (error) {
             alert('Invalid code! Please check and try again.');
             console.error('Error joining board:', error);

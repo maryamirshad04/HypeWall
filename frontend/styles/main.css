@@ -821,3 +821,104 @@ textarea:focus {
 ::-webkit-scrollbar-thumb:hover {
     background: rgba(102, 126, 234, 0.7);
 }
+
+
+/* Role-based visibility rules */
+#contributor-interface .share-section,
+#viewer-interface .share-section {
+    display: none !important;
+}
+
+#viewer-interface .message-form {
+    display: none !important;
+}
+
+#contributor-interface .comments-section-embedded {
+    display: none !important;
+}
+
+/* Hide all back buttons for viewers */
+#viewer-interface .btn-back-to-board {
+    display: none !important;
+}
+
+/* Style adjustments for contributor-only view */
+#contributor-interface .message-form h3 {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#contributor-interface {
+    padding: 120px 2rem 2rem;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#contributor-interface .message-form {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Role-based visibility rules */
+#contributor-interface .share-section,
+#viewer-interface .share-section {
+    display: none !important;
+}
+
+#viewer-interface .message-form {
+    display: none !important;
+}
+
+#contributor-interface .comments-section-embedded {
+    display: none !important;
+}
+
+/* Hide all back buttons for viewers */
+#viewer-interface .btn-back-to-board {
+    display: none !important;
+}
+
+/* Style adjustments for contributor-only view */
+#contributor-interface .message-form h3 {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+#contributor-interface {
+    padding: 120px 2rem 2rem;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#contributor-interface .message-form {
+    max-width: 600px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Creator dashboard spacing */
+#creator-dashboard {
+    padding: 100px 2rem 2rem;
+    min-height: 100vh;
+}
+
+#creator-dashboard .share-section,
+#creator-dashboard .message-form {
+    margin-bottom: 3rem;
+}
+
+/* Viewer interface spacing */
+#viewer-interface {
+    padding: 100px 2rem 2rem;
+    min-height: 100vh;
+}
+
+/* Ensure hidden class works */
+.hidden {
+    display: none !important;
+}
