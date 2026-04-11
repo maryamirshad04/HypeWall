@@ -1,95 +1,87 @@
-# GenzKudo — HypeWall
+# HypeWall 🎉
 
-Gen Z kudoboard app. **Node.js + Express** backend, **MongoDB Atlas** database, **Vercel** deployment.  
-The frontend is plain HTML/CSS/JS — no build step needed.
+**HypeWall** is a free, modern, and aesthetic appreciation board built with pure Gen-Z energy. Create beautiful boards, choose a vibe, and let people leave heartfelt messages — all without paywalls or boring templates.
 
----
-
-## Project Structure
-
-```
-genzkudo/
-├── backend/
-│   ├── index.js          ← Express API + serves frontend in local dev
-│   ├── package.json
-│   └── .env.example
-├── frontend/
-│   ├── index.html
-│   ├── scripts/          ← api.js, board.js, main.js, ui.js, utils.js, view.js
-│   ├── styles/
-│   └── images/
-└── vercel.json
-```
+This project is about celebrating people **with style**.
 
 ---
 
-## Local Development
+## ✨ Features
 
-### Step 1 — Get a MongoDB Atlas connection string
+### 🎨 Aesthetic Themes
 
-1. Go to https://cloud.mongodb.com → sign up or log in
-2. Create a **free M0** cluster (any region)
-3. Under **Database Access** → Add a user (username + password)
-4. Under **Network Access** → Add IP `0.0.0.0/0` (allow all IPs)
-5. Click **Connect → Drivers** → copy your connection string:
-   ```
-   mongodb+srv://myuser:mypassword@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
-   ```
+Choose a vibe that matches the moment:
 
-### Step 2 — Set up and run backend
+* 💼 **Professional Minimalist**
+* 📚 **Dark Academia**
+* 🌸 **Cottage Core**
+* ⚡ **Cyber Punk**
+* 🎨 **90s Retro**
 
-```bash
-cd backend
-cp .env.example .env
-```
+### 🔗 Two-Link System
 
-Edit `.env` and paste your MongoDB URI:
-```
-MONGODB_URI=mongodb+srv://myuser:mypassword@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority
-```
+Each board comes with two separate links:
 
-Then install and run:
-```bash
-npm install
-npm run dev
-```
+* **Contributor Link** — share this with people so they can add messages
+* **View Link** — a private link for the recipient to view and download all messages
 
-### Step 3 — Open the app
+### 🔐 Join Code System
 
-Visit **http://localhost:5000** — the Express server serves both the API and the frontend from one port. No separate frontend server needed.
+* Google Classroom-style **6-character join codes**
+* Anyone with the code can join and post messages
+
+### ⚡ Real-Time Updates
+
+* Messages refresh automatically every **5 seconds**
+* No page reloads needed
 
 ---
 
-## Deploy to Vercel
+## 🎯 How It Works
 
-### Step 1 — Push to GitHub
+### Creating a Board
 
-```bash
-git add .
-git commit -m "Switch to Node/Express + MongoDB"
-git push
-```
+1. Click **"Create Your Vibe"** or open **Library**
+2. Choose an aesthetic theme
+3. Enter the recipient’s name
+4. Click **Create**
+5. You’ll receive:
 
-### Step 2 — Import to Vercel
+   * a **Contributor Link** to share
+   * a **View Link** to keep private
 
-1. Go to https://vercel.com/new → import your GitHub repo
-2. **Before deploying**, go to **Environment Variables** and add:
-   - **Name:** `MONGODB_URI`
-   - **Value:** your full Atlas connection string
-3. Click **Deploy**
+### Joining a Board
 
-Vercel routes `/api/*` to `backend/index.js` and serves all static frontend files directly.
+1. Click **"Join with Code"** in the navbar
+2. Enter the 6-character code
+3. Start adding messages instantly
+
+### Adding Messages
+
+* Enter your name (or stay anonymous)
+* Pick a color that matches the vibe
+* Write your message
+* Click **Post Message**
 
 ---
 
-## API Reference
+## 💻 Technology Stack
 
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/boards` | Create a board |
-| GET | `/api/boards/:id` | Get board by ID |
-| GET | `/api/boards/code/:code` | Look up by 6-char join code |
-| GET | `/api/boards/view/:token` | Get board + comments by view token |
-| POST | `/api/boards/:id/comments` | Add a comment |
-| GET | `/api/boards/:id/comments` | Get all comments |
-| DELETE | `/api/boards/:id/comments/:cid` | Delete a comment |
+* **Backend:** Python (Flask)
+* **Frontend:** Vanilla JavaScript, HTML5, CSS3
+
+---
+
+## 🌱 Vision
+
+HypeWall is built to be:
+
+* **Free forever**
+* **Aesthetic-first**
+* **Fun, personal, and expressive**
+
+No corporate energy. No locked features. Just genuine appreciation, done right.
+
+---
+
+✨ Built with love for vibes, words, and people.
