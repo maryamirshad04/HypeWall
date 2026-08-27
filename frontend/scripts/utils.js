@@ -132,17 +132,18 @@ const CONSTANTS = {
 };
 
 // Design card images for floating background
+// Cottagecore palette: sage, cream, moss, honey, terracotta, clay
 const DESIGN_CARDS = [
-    { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #9caf88 0%, #6b8e5a 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #f5edda 0%, #d9c8a8 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #d9a441 0%, #b9873e 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #c47e5a 0%, #a05f3f 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #b6cf9d 0%, #8fb573 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #e9dfc8 0%, #c9b490 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #7a9668 0%, #4c6b41 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #e4b57c 0%, #c99a5f 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #f0e6d0 0%, #dcc9a3 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #8a6d4f 0%, #6d4c33 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #aec99a 0%, #d9c8a8 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #f6efe0 0%, #e0d3b4 100%)', type: 'gradient' },
 ];
