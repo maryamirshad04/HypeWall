@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/flash.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;800;900&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -33,18 +36,41 @@
 
     <!-- Landing Page -->
     <section class="landing" id="landing">
+        <div class="landing-blobs" aria-hidden="true">
+            <div class="blob blob-1"></div>
+            <div class="blob blob-2"></div>
+            <div class="blob blob-3"></div>
+        </div>
+        <div class="landing-grain" aria-hidden="true"></div>
         <div class="floating-cards" id="floatingCards"></div>
 
         <div class="landing-content">
-            <h1>HYPE WALL</h1>
-            <p>Create aesthetic boards that hit different</p>
+            <div class="landing-badge">✨ free forever · no sign-up · pure vibes</div>
+            <h1 class="landing-title">
+                <span class="title-line">MAKE THEIR</span>
+                <span class="title-line title-gradient">DAY LOUD.</span>
+            </h1>
+            <p class="landing-sub">Aesthetic appreciation boards with custom backgrounds, GIFs,
+                voice notes &amp; music — built by you, filled with love by everyone.</p>
+
             <div class="cta-container">
-                <button class="cta-button" onclick="toggleFloatingCar()">Create Your Vibe</button>
+                <button class="cta-button cta-glow" onclick="toggleFloatingCar()">
+                    <span>🚀 Create Your Vibe</span>
+                </button>
+                <button class="cta-secondary" onclick="openJoinModal()">I have a code →</button>
 
                 <!-- Floating Card Car Layout -->
                 <div class="floating-card-car" id="floatingCardCar">
                     <!-- Car buttons will be populated by JS -->
                 </div>
+            </div>
+
+            <div class="feature-pills">
+                <span class="pill">🖼️ Custom backgrounds</span>
+                <span class="pill">🎞️ GIF messages</span>
+                <span class="pill">🎙️ Voice notes</span>
+                <span class="pill">🎵 Board music</span>
+                <span class="pill">⚡ Live updates</span>
             </div>
         </div>
     </section>
@@ -60,6 +86,30 @@
             <div class="form-group">
                 <label>Who is this for?</label>
                 <input type="text" id="recipientName" placeholder="Enter their name..." autofocus>
+            </div>
+
+            <div class="form-group">
+                <label>Custom background image <span class="optional-tag">optional — overrides the theme</span></label>
+                <label class="upload-drop" for="customBgInput">
+                    <span id="customBgLabel">🖼️ Upload an image</span>
+                </label>
+                <input type="file" id="customBgInput" accept="image/*" hidden>
+                <div class="upload-preview hidden" id="customBgPreview">
+                    <img id="customBgImg" alt="Background preview">
+                    <button type="button" class="remove-upload" onclick="clearCustomBg()">✕</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Board music <span class="optional-tag">optional — plays when the board is opened</span></label>
+                <label class="upload-drop" for="boardAudioInput">
+                    <span id="boardAudioLabel">🎵 Upload audio (mp3, m4a…)</span>
+                </label>
+                <input type="file" id="boardAudioInput" accept="audio/*" hidden>
+                <div class="upload-preview hidden" id="boardAudioPreview">
+                    <span class="audio-chip">🎵 <span id="boardAudioName"></span></span>
+                    <button type="button" class="remove-upload" onclick="clearBoardAudio()">✕</button>
+                </div>
             </div>
 
             <button class="create-button" onclick="createBoard()">Create Board</button>
@@ -133,11 +183,38 @@
             </div>
             <div class="form-group">
                 <label>Pick a Color</label>
-                <div class="color-picker" id="colorPicker"></div>
+                <div class="color-picker-row">
+                    <div class="color-picker" id="colorPicker"></div>
+                    <label class="custom-color-wrap" title="Pick any color">
+                        <input type="color" id="customColorInput" value="#FFD700">
+                        <span>🎨 Custom</span>
+                    </label>
+                </div>
             </div>
             <div class="form-group">
                 <label>Your Message</label>
                 <textarea id="commentMessage" placeholder="Say something nice..." rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Add media <span class="optional-tag">optional</span></label>
+                <div class="media-buttons">
+                    <label class="upload-drop small" for="commentGifInput">
+                        <span>🎞️ GIF / image</span>
+                    </label>
+                    <input type="file" id="commentGifInput" accept="image/*" hidden>
+                    <label class="upload-drop small" for="commentAudioInput">
+                        <span>🎙️ Audio</span>
+                    </label>
+                    <input type="file" id="commentAudioInput" accept="audio/*" hidden>
+                </div>
+                <div class="upload-preview hidden" id="commentGifPreview">
+                    <img id="commentGifImg" alt="GIF preview">
+                    <button type="button" class="remove-upload" onclick="clearCommentGif()">✕</button>
+                </div>
+                <div class="upload-preview hidden" id="commentAudioPreview">
+                    <span class="audio-chip">🎙️ <span id="commentAudioName"></span></span>
+                    <button type="button" class="remove-upload" onclick="clearCommentAudio()">✕</button>
+                </div>
             </div>
             <button class="create-button" onclick="postMessage()">Post Message</button>
         </div>
@@ -150,6 +227,8 @@
             <p class="view-subtitle">All the love and appreciation in one place</p>
             <button class="btn-back-to-board" onclick="returnToBoard()">← Back to Board</button>
         </div>
+
+        <button class="music-toggle hidden" id="musicToggle" onclick="toggleBoardMusic()" title="Board music">🎵</button>
 
         <div class="comments-container">
             <div class="comments-grid" id="commentsGrid">
