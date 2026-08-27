@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/animations.css">
-    <link rel="stylesheet" href="styles/flash.css?v=4">
+    <link rel="stylesheet" href="styles/flash.css?v=5">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Kaushan+Script&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -24,13 +24,9 @@
     <nav class="navbar">
         <div class="logo">HYPE WALL</div>
         <div class="nav-buttons">
-            <div style="position: relative;">
-                <button class="btn-library" onclick="toggleLibrary()">Library</button>
-                <div class="library-dropdown" id="libraryDropdown">
-                    <!-- Dropdown items will be populated by JS -->
-                </div>
-            </div>
-            <button class="btn-join" onclick="openJoinModal()">Join with Code</button>
+            <button class="nav-link" onclick="openInfoPage('about')">About Us</button>
+            <button class="nav-link" onclick="openInfoPage('contact')">Contact Us</button>
+            <button class="nav-link" onclick="openInfoPage('privacy')">Privacy</button>
         </div>
     </nav>
 
@@ -44,7 +40,7 @@
                 <span class="title-line">MAKE THEIR DAY</span>
                 <span class="title-line script-word">loud.</span>
             </h1>
-            <p class="landing-sub">Build a board, pick a vibe, drop the link —
+            <p class="landing-sub">Build a board, pick a vibe, drop the link,
                 and let everyone flood it with love.</p>
 
             <div class="cta-container">
@@ -86,6 +82,16 @@
         </div>
     </section>
 
+    <!-- Info Pages (About / Contact / Privacy) -->
+    <div class="info-page" id="infoPage">
+        <div class="info-content">
+            <button class="cta-secondary btn-back-info" onclick="closeInfoPage()">← Back</button>
+            <p class="hero-kicker" id="infoKicker"></p>
+            <h1 class="landing-title info-title"><span class="script-word script-static" id="infoTitle"></span></h1>
+            <div class="info-body" id="infoBody"></div>
+        </div>
+    </div>
+
     <!-- Library Modal -->
     <div class="modal" id="libraryModal">
         <div class="modal-content" style="max-width: 500px;">
@@ -105,7 +111,7 @@
             </div>
 
             <div class="form-group">
-                <label>Custom background image <span class="optional-tag">optional — overrides the theme</span></label>
+                <label>Custom background image <span class="optional-tag">optional, overrides the theme</span></label>
                 <label class="upload-drop" for="customBgInput">
                     <span id="customBgLabel">🖼️ Upload an image</span>
                 </label>
@@ -117,7 +123,7 @@
             </div>
 
             <div class="form-group">
-                <label>Board music <span class="optional-tag">optional — plays when the board is opened</span></label>
+                <label>Board music <span class="optional-tag">optional, plays when the board is opened</span></label>
                 <label class="upload-drop" for="boardAudioInput">
                     <span id="boardAudioLabel">🎵 Upload audio (mp3, m4a…)</span>
                 </label>
@@ -259,12 +265,12 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="scripts/utils.js?v=4"></script>
-    <script src="scripts/api.js?v=4"></script>
-    <script src="scripts/ui.js?v=4"></script>
-    <script src="scripts/board.js?v=4"></script>
-    <script src="scripts/view.js?v=4"></script>
-    <script src="scripts/main.js?v=4"></script>
+    <script src="scripts/utils.js?v=5"></script>
+    <script src="scripts/api.js?v=5"></script>
+    <script src="scripts/ui.js?v=5"></script>
+    <script src="scripts/board.js?v=5"></script>
+    <script src="scripts/view.js?v=5"></script>
+    <script src="scripts/main.js?v=5"></script>
 </body>
 
 </html>

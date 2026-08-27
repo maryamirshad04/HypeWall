@@ -87,6 +87,25 @@ body { background: var(--paper); }
 
 .title-line { display: block; }
 
+/* "MAKE THEIR DAY" swooshes in from the left on load */
+.landing-title .title-line:first-child {
+    animation: swooshIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes swooshIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-120px) skewX(-12deg);
+        filter: blur(6px);
+    }
+    60% { filter: blur(0); }
+    100% {
+        opacity: 1;
+        transform: translateX(0) skewX(0);
+        filter: blur(0);
+    }
+}
+
 /* Brush-script accent word, multicolor like painted lettering */
 .script-word {
     font-family: 'Kaushan Script', cursive;
@@ -98,16 +117,49 @@ body { background: var(--paper); }
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: paintShift 5s ease-in-out infinite alternate;
     filter: drop-shadow(3px 4px 0 rgba(17, 17, 17, 0.9));
     padding: 0 0.15em 0.12em;
     transform: rotate(-3deg);
     display: inline-block;
+    /* pops in after the swoosh, then keeps glowing + paint-shifting */
+    animation:
+        loudIn 0.7s cubic-bezier(0.2, 1.4, 0.35, 1) 0.75s both,
+        loudGlow 2.2s ease-in-out 1.6s infinite alternate,
+        paintShift 5s ease-in-out 1.6s infinite alternate;
+}
+
+@keyframes loudIn {
+    0% {
+        opacity: 0;
+        transform: rotate(-3deg) scale(0.4) translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: rotate(-3deg) scale(1) translateY(0);
+    }
+}
+
+@keyframes loudGlow {
+    from {
+        filter: drop-shadow(3px 4px 0 rgba(17, 17, 17, 0.9))
+                drop-shadow(0 0 6px rgba(255, 230, 0, 0.35));
+    }
+    to {
+        filter: drop-shadow(3px 4px 0 rgba(17, 17, 17, 0.9))
+                drop-shadow(0 0 22px rgba(255, 46, 136, 0.75));
+    }
 }
 
 @keyframes paintShift {
     from { background-position: 0% center; }
     to   { background-position: 100% center; }
+}
+
+/* static variant for info page titles, no entrance/glow loop */
+.script-static {
+    animation: none !important;
+    filter: drop-shadow(3px 4px 0 rgba(17, 17, 17, 0.9)) !important;
+    opacity: 1 !important;
 }
 
 .landing-sub {
@@ -581,3 +633,72 @@ body { background: var(--paper); }
     .cta-secondary { margin-left: 0; margin-top: 0.8rem; }
     .cta-container { display: flex; flex-direction: column; align-items: center; }
 }
+
+/* ── Navbar text links (About / Contact / Privacy) ──────────── */
+.nav-link {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    color: var(--ink) !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 800 !important;
+    font-size: 0.8rem !important;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 0.6rem 1rem !important;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-link:hover {
+    color: var(--magenta) !important;
+    box-shadow: inset 0 -3px 0 var(--electric) !important;
+    transform: none !important;
+    background: transparent !important;
+}
+
+/* ── Info pages (About / Contact / Privacy) ─────────────────── */
+.info-page {
+    display: none;
+    min-height: 100vh;
+    background: var(--paper);
+    padding: 140px 2rem 4rem;
+    position: relative;
+}
+
+.info-page::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 34%;
+    height: 150px;
+    background: var(--electric);
+}
+
+.info-content {
+    max-width: 760px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.btn-back-info { margin-bottom: 2.5rem; }
+
+.info-title {
+    text-align: left;
+    margin-bottom: 2rem !important;
+    font-size: clamp(2.4rem, 6vw, 4rem) !important;
+}
+
+.info-body p {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.75;
+    color: #444;
+    margin-bottom: 1.2rem;
+    max-width: 620px;
+}
+
+.info-body strong { color: var(--ink); }

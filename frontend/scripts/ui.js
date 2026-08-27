@@ -22,7 +22,8 @@ const UIController = {
             landingPage: document.getElementById('landing'),
             boardPage: document.getElementById('boardPage'),
             viewPage: document.getElementById('viewPage'),
-            floatingCards: document.getElementById('floatingCards')
+            floatingCards: document.getElementById('floatingCards'),
+            infoPage: document.getElementById('infoPage')
         };
         console.log('Cached elements:', Object.keys(this.elements));
     },
@@ -249,9 +250,60 @@ const UIController = {
         if (joinCode) joinCode.value = '';
     },
 
+    // ─── Info pages (About / Contact / Privacy) ─────────────────
+    INFO_PAGES: {
+        about: {
+            kicker: 'the story',
+            title: 'about us.',
+            body: `
+                <p>HypeWall started with a simple idea: celebrating someone should feel as special as the person you are celebrating.</p>
+                <p>We build free, aesthetic appreciation boards where friends, classmates, and teammates can drop messages, GIFs, voice notes, and music for the people they love. No paywalls, no sign-ups, no corporate energy.</p>
+                <p>This page is a placeholder. The full story is coming soon.</p>`
+        },
+        contact: {
+            kicker: 'say hi',
+            title: 'contact us.',
+            body: `
+                <p>Questions, ideas, or just want to share a board that made someone cry happy tears? We would love to hear it.</p>
+                <p>Email: <strong>hello@hypewall.app</strong> (placeholder)</p>
+                <p>Socials coming soon. This page is a placeholder for now.</p>`
+        },
+        privacy: {
+            kicker: 'the boring but important stuff',
+            title: 'privacy.',
+            body: `
+                <p>Your boards belong to you. View links are private, and we never sell your data.</p>
+                <p>Messages and media you upload are stored only to display them on the board they were posted to.</p>
+                <p>This page is a placeholder. The full privacy policy is coming soon.</p>`
+        }
+    },
+
+    openInfoPage: function(key) {
+        const page = this.INFO_PAGES[key];
+        if (!page || !this.elements.infoPage) return;
+
+        document.getElementById('infoKicker').textContent = page.kicker;
+        document.getElementById('infoTitle').textContent = page.title;
+        document.getElementById('infoBody').innerHTML = page.body;
+
+        if (this.elements.landingPage) this.elements.landingPage.style.display = 'none';
+        if (this.elements.boardPage) { this.elements.boardPage.style.display = 'none'; this.elements.boardPage.classList.remove('active'); }
+        if (this.elements.viewPage) { this.elements.viewPage.style.display = 'none'; this.elements.viewPage.classList.remove('active'); }
+        this.elements.infoPage.style.display = 'block';
+        window.scrollTo(0, 0);
+    },
+
+    closeInfoPage: function() {
+        if (this.elements.infoPage) this.elements.infoPage.style.display = 'none';
+        this.showLandingPage();
+    },
+
     // Show board page
     showBoardPage: function() {
         // Hide all pages
+        if (this.elements.infoPage) {
+            this.elements.infoPage.style.display = 'none';
+        }
         if (this.elements.landingPage) {
             this.elements.landingPage.style.display = 'none';
         }
@@ -271,6 +323,9 @@ const UIController = {
     // Show view page
     showViewPage: function() {
         // Hide all pages
+        if (this.elements.infoPage) {
+            this.elements.infoPage.style.display = 'none';
+        }
         if (this.elements.landingPage) {
             this.elements.landingPage.style.display = 'none';
         }
@@ -318,6 +373,8 @@ window.openCreateModal = () => {
     UIController.renderModalThemes();
     UIController.openLibraryModal();
 };
+window.openInfoPage = (key) => UIController.openInfoPage(key);
+window.closeInfoPage = () => UIController.closeInfoPage();
 window.pickModalTheme = (aesthetic) => {
     if (typeof BoardController !== 'undefined') {
         BoardController.selectedAesthetic = aesthetic;
