@@ -110,10 +110,25 @@ const UIController = {
         }
     },
 
-    // Render aesthetics in dropdown and car ONLY
+    // Render aesthetics in dropdown, car, and create modal
     renderAesthetics: function () {
         this.renderDropdownAesthetics();
         this.renderCarAesthetics();
+        this.renderModalThemes();
+    },
+
+    // Render the theme picker inside the create-board modal
+    renderModalThemes: function () {
+        const grid = document.getElementById('modalThemeGrid');
+        if (!grid) return;
+
+        const selected = (typeof BoardController !== 'undefined' && BoardController.selectedAesthetic) || 'professional';
+        grid.innerHTML = CONSTANTS.AESTHETICS.map(aesthetic => `
+            <div class="modal-theme ${aesthetic === selected ? 'selected' : ''}" data-aesthetic="${aesthetic}" onclick="pickModalTheme('${aesthetic}')">
+                <img src="images/${aesthetic}.jpeg" alt="${CONSTANTS.AESTHETIC_NAMES[aesthetic]}">
+                <span>${CONSTANTS.AESTHETIC_NAMES[aesthetic]}</span>
+            </div>
+        `).join('');
     },
 
     // Render aesthetics in dropdown
@@ -299,5 +314,15 @@ window.toggleFloatingCar = () => UIController.toggleFloatingCar();
 window.selectAestheticFromDropdown = (aesthetic) => App.selectAesthetic(aesthetic);
 window.selectAestheticFromCar = (aesthetic) => App.selectAesthetic(aesthetic);
 window.openJoinModal = () => UIController.openJoinModal();
+window.openCreateModal = () => {
+    UIController.renderModalThemes();
+    UIController.openLibraryModal();
+};
+window.pickModalTheme = (aesthetic) => {
+    if (typeof BoardController !== 'undefined') {
+        BoardController.selectedAesthetic = aesthetic;
+    }
+    UIController.renderModalThemes();
+};
 window.closeJoinModal = () => UIController.closeJoinModal();
 window.closeLibrary = () => UIController.closeLibrary();

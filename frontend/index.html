@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/animations.css">
-    <link rel="stylesheet" href="styles/flash.css?v=3">
+    <link rel="stylesheet" href="styles/flash.css?v=4">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Kaushan+Script&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
@@ -48,7 +48,7 @@
                 and let everyone flood it with love.</p>
 
             <div class="cta-container">
-                <button class="cta-button cta-main" onclick="toggleFloatingCar()">Create Your Vibe</button>
+                <button class="cta-button cta-main" onclick="openCreateModal()">Create Your Vibe</button>
                 <button class="cta-secondary" onclick="openJoinModal()">I have a code →</button>
 
                 <!-- Floating Card Car Layout -->
@@ -80,7 +80,7 @@
                 <img src="images/professionalbg.jpeg" alt="Professional">
                 <span class="vibe-label">Clean<br>Minimal</span>
             </div>
-            <div class="vibe-tile vibe-tile-custom" onclick="toggleFloatingCar()">
+            <div class="vibe-tile vibe-tile-custom" onclick="openCreateModal()">
                 <span class="vibe-label vibe-label-dark">Your<br>Vibe ✦</span>
             </div>
         </div>
@@ -92,6 +92,11 @@
             <div class="modal-header">
                 <h2>Create Your Board</h2>
                 <button class="close-modal" onclick="closeLibrary()">&times;</button>
+            </div>
+
+            <div class="form-group">
+                <label>Pick a theme</label>
+                <div class="modal-theme-grid" id="modalThemeGrid"></div>
             </div>
 
             <div class="form-group">
@@ -254,12 +259,12 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="scripts/utils.js"></script>
-    <script src="scripts/api.js"></script>
-    <script src="scripts/ui.js"></script>
-    <script src="scripts/board.js"></script>
-    <script src="scripts/view.js"></script>
-    <script src="scripts/main.js"></script>
+    <script src="scripts/utils.js?v=4"></script>
+    <script src="scripts/api.js?v=4"></script>
+    <script src="scripts/ui.js?v=4"></script>
+    <script src="scripts/board.js?v=4"></script>
+    <script src="scripts/view.js?v=4"></script>
+    <script src="scripts/main.js?v=4"></script>
 </body>
 
 </html>

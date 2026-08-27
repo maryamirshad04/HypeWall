@@ -148,6 +148,7 @@ const App = {
     selectAesthetic: function(aesthetic) {
         console.log('Aesthetic selected:', aesthetic);
         BoardController.selectedAesthetic = aesthetic;
+        UIController.renderModalThemes();
         UIController.openLibraryModal();
     },
 

@@ -244,6 +244,53 @@ body { background: var(--paper); }
     text-align: center;
 }
 
+/* ── Create-modal theme picker ──────────────────────────────── */
+.modal-theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+    gap: 10px;
+}
+
+.modal-theme {
+    cursor: pointer;
+    border: 3px solid transparent;
+    text-align: center;
+    padding: 6px 4px;
+    transition: all 0.2s;
+    background: #f6f6f6;
+}
+
+.modal-theme img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.modal-theme span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #555;
+    line-height: 1.15;
+    display: block;
+}
+
+.modal-theme:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.15);
+}
+
+.modal-theme.selected {
+    border-color: var(--ink);
+    background: var(--electric);
+    box-shadow: 4px 4px 0 var(--ink);
+}
+
+.modal-theme.selected span { color: var(--ink); }
+
 /* ── Navbar — crisp white, black type ───────────────────────── */
 .navbar {
     background: rgba(255, 255, 255, 0.92) !important;
