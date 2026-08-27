@@ -46,6 +46,64 @@ const ViewController = {
         
         // Apply background
         this.forceBackgroundImage();
+
+        // Board background music (if the creator added one)
+        this.setupBoardMusic();
+    },
+
+    // ─── Board background music ──────────────────────────────────
+    bgAudioEl: null,
+
+    setupBoardMusic: function () {
+        const toggle = document.getElementById('musicToggle');
+        if (!toggle) return;
+
+        const src = this.currentBoard && this.currentBoard.bg_audio;
+        if (!src) {
+            toggle.classList.add('hidden');
+            return;
+        }
+
+        if (!this.bgAudioEl || this.bgAudioEl.src !== src) {
+            this.stopBoardMusic();
+            this.bgAudioEl = new Audio(src);
+            this.bgAudioEl.loop = true;
+        }
+
+        toggle.classList.remove('hidden');
+        toggle.classList.remove('playing');
+        toggle.textContent = '🎵';
+
+        // Try to autoplay; browsers may block it until user interaction,
+        // in which case the floating button is the invitation to play.
+        this.bgAudioEl.play().then(() => {
+            toggle.classList.add('playing');
+        }).catch(() => { /* autoplay blocked — user taps the button */ });
+    },
+
+    toggleBoardMusic: function () {
+        const toggle = document.getElementById('musicToggle');
+        if (!this.bgAudioEl) return;
+
+        if (this.bgAudioEl.paused) {
+            this.bgAudioEl.play();
+            if (toggle) { toggle.classList.add('playing'); toggle.textContent = '🎵'; }
+        } else {
+            this.bgAudioEl.pause();
+            if (toggle) { toggle.classList.remove('playing'); toggle.textContent = '🔇'; }
+        }
+    },
+
+    stopBoardMusic: function () {
+        if (this.bgAudioEl) {
+            this.bgAudioEl.pause();
+            this.bgAudioEl = null;
+        }
+        const toggle = document.getElementById('musicToggle');
+        if (toggle) {
+            toggle.classList.add('hidden');
+            toggle.classList.remove('playing');
+        }
     },
 
     forceBackgroundImage: function () {
@@ -56,7 +114,10 @@ const ViewController = {
         }
         
         const theme = this.selectedAesthetic || 'professional';
-        const imagePath = this.aestheticBackgrounds[theme];
+        // A custom uploaded background overrides the theme image
+        const imagePath = (this.currentBoard && this.currentBoard.bg_image)
+            ? this.currentBoard.bg_image
+            : this.aestheticBackgrounds[theme];
         
         console.log('🎨 Forcing background:', imagePath, 'for theme:', theme);
         
@@ -98,7 +159,15 @@ const ViewController = {
         }
     },
 
+    lastRenderKey: null,
+
     renderComments: function (comments) {
+        // Skip re-render when nothing changed — rebuilding the grid every
+        // 5s would cut off any playing voice notes.
+        const renderKey = comments.map(c => c.id).join(',');
+        if (renderKey === this.lastRenderKey && comments.length > 0) return;
+        this.lastRenderKey = renderKey;
+
         // Wait a moment to ensure DOM is ready
         setTimeout(() => {
             const grid = document.getElementById('commentsGrid');
@@ -139,14 +208,65 @@ const ViewController = {
 
                 card.innerHTML = `
                     <div class="comment-author">${this.escapeHtml(comment.author)}</div>
-                    <div class="comment-message">${this.escapeHtml(comment.message)}</div>
+                    ${comment.message ? `<div class="comment-message">${this.escapeHtml(comment.message)}</div>` : ''}
                     <div class="comment-time">${this.formatDate(comment.created_at)}</div>
                 `;
+
+                // GIF / image attachment
+                if (comment.gif) {
+                    const img = document.createElement('img');
+                    img.className = 'comment-gif';
+                    img.src = comment.gif;
+                    img.alt = 'attachment';
+                    card.insertBefore(img, card.querySelector('.comment-time'));
+                }
+
+                // Audio attachment → custom mini player
+                if (comment.audio) {
+                    card.insertBefore(this.buildAudioPlayer(comment.audio), card.querySelector('.comment-time'));
+                }
+
                 grid.appendChild(card);
             });
 
             console.log('✓ All comment cards rendered');
         }, 100);
+    },
+
+    // Build a styled play-button audio player for a comment
+    buildAudioPlayer: function (src) {
+        const wrap = document.createElement('div');
+        wrap.className = 'audio-player';
+        wrap.innerHTML = `
+            <button class="audio-play-btn" title="Play voice note">▶</button>
+            <div class="audio-bars">${'<span></span>'.repeat(12)}</div>
+            <span class="audio-label">voice note</span>
+        `;
+
+        const audio = new Audio(src);
+        const btn = wrap.querySelector('.audio-play-btn');
+
+        btn.addEventListener('click', () => {
+            if (audio.paused) {
+                // Pause any other playing comment audio first
+                document.querySelectorAll('.audio-player.playing .audio-play-btn').forEach(b => b.click());
+                audio.play();
+                btn.textContent = '❚❚';
+                wrap.classList.add('playing');
+            } else {
+                audio.pause();
+                btn.textContent = '▶';
+                wrap.classList.remove('playing');
+            }
+        });
+
+        audio.addEventListener('ended', () => {
+            btn.textContent = '▶';
+            wrap.classList.remove('playing');
+            audio.currentTime = 0;
+        });
+
+        return wrap;
     },
 
     hexToRgb: function (hex) {
@@ -217,6 +337,8 @@ const ViewController = {
             console.log('✓ Auto-refresh stopped');
         }
 
+        this.stopBoardMusic();
+        this.lastRenderKey = null;
         UIController.showBoardPage();
     },
 
@@ -225,6 +347,8 @@ const ViewController = {
         
         this.currentBoard = null;
         this.selectedAesthetic = 'professional';
+        this.stopBoardMusic();
+        this.lastRenderKey = null;
 
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
@@ -272,6 +396,8 @@ window.addEventListener('DOMContentLoaded', function() {
                     <p class="view-subtitle">All the love and appreciation in one place</p>
                     <button class="btn-back-to-board" onclick="returnToBoard()">← Back to Board</button>
                 </div>
+
+                <button class="music-toggle hidden" id="musicToggle" onclick="toggleBoardMusic()" title="Board music">🎵</button>
 
                 <div class="comments-container">
                     <div class="comments-grid" id="commentsGrid">
