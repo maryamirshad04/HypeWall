@@ -7,7 +7,8 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+// Large limit to allow base64 media (custom backgrounds, GIFs, audio) in JSON payloads
+app.use(express.json({ limit: '12mb' }));
 
 // Serve frontend static files (used in local dev; Vercel handles this via routes in production)
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -41,13 +42,20 @@ function generateCode() {
 // POST /api/boards  – create a board
 app.post('/api/boards', async (req, res) => {
   try {
-    const { aesthetic = 'professional', recipient_name = 'Someone Special' } = req.body;
+    const {
+      aesthetic = 'professional',
+      recipient_name = 'Someone Special',
+      bg_image = null,   // optional custom background (data URL)
+      bg_audio = null,   // optional board background music (data URL)
+    } = req.body;
     const database = await getDb();
 
     const board = {
       id: uuidv4(),
       aesthetic,
       recipient_name,
+      bg_image,
+      bg_audio,
       join_code: generateCode(),
       view_token: uuidv4(),
       created_at: new Date().toISOString(),
@@ -74,6 +82,8 @@ app.get('/api/boards/code/:code', async (req, res) => {
       aesthetic: board.aesthetic,
       recipient_name: board.recipient_name,
       join_code: board.join_code,
+      bg_image: board.bg_image || null,
+      bg_audio: board.bg_audio || null,
     });
   } catch (err) {
     console.error(err);
@@ -128,6 +138,8 @@ app.post('/api/boards/:board_id/comments', async (req, res) => {
       author: req.body.author || 'Anonymous',
       message: req.body.message || '',
       color: req.body.color || '#FFD700',
+      gif: req.body.gif || null,     // optional GIF/image attachment (data URL or GIF link)
+      audio: req.body.audio || null, // optional audio attachment (data URL)
       created_at: new Date().toISOString(),
     };
 

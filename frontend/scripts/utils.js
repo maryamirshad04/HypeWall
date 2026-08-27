@@ -55,6 +55,62 @@ const Utils = {
     }
 };
 
+// ─── Media helpers (uploads → data URLs) ─────────────────────────
+const MediaUtils = {
+    MAX_AUDIO_BYTES: 4 * 1024 * 1024, // 4MB
+    MAX_GIF_BYTES: 3 * 1024 * 1024,   // 3MB (GIFs can't be recompressed client-side)
+
+    // Read any file as a data URL
+    fileToDataUrl: function (file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    },
+
+    // Downscale + compress a still image; GIFs are passed through (with size cap)
+    // so their animation is preserved.
+    imageToDataUrl: async function (file) {
+        if (file.type === 'image/gif') {
+            if (file.size > this.MAX_GIF_BYTES) {
+                throw new Error('GIF is too large (max 3MB). Try a smaller one!');
+            }
+            return this.fileToDataUrl(file);
+        }
+
+        const rawUrl = await this.fileToDataUrl(file);
+        const img = await new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error('Could not read that image.'));
+            image.src = rawUrl;
+        });
+
+        const MAX_DIM = 1600;
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+            const scale = MAX_DIM / Math.max(width, height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        return canvas.toDataURL('image/jpeg', 0.82);
+    },
+
+    audioToDataUrl: async function (file) {
+        if (file.size > this.MAX_AUDIO_BYTES) {
+            throw new Error('Audio is too large (max 4MB). Try a shorter clip!');
+        }
+        return this.fileToDataUrl(file);
+    }
+};
+
 // Constants
 const CONSTANTS = {
     API_URL: '/api',
