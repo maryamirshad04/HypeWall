@@ -12,9 +12,9 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/animations.css">
-    <link rel="stylesheet" href="styles/flash.css?v=2">
+    <link rel="stylesheet" href="styles/flash.css?v=3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Kaushan+Script&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -36,27 +36,19 @@
 
     <!-- Landing Page -->
     <section class="landing" id="landing">
-        <div class="landing-blobs" aria-hidden="true">
-            <div class="blob blob-1"></div>
-            <div class="blob blob-2"></div>
-            <div class="blob blob-3"></div>
-        </div>
-        <div class="landing-grain" aria-hidden="true"></div>
         <div class="floating-cards" id="floatingCards"></div>
 
         <div class="landing-content">
-            <div class="landing-badge">✨ free forever · no sign-up · pure vibes</div>
+            <p class="hero-kicker">appreciation boards · gifs · voice notes · music</p>
             <h1 class="landing-title">
-                <span class="title-line">MAKE THEIR</span>
-                <span class="title-line title-gradient">DAY LOUD.</span>
+                <span class="title-line">MAKE THEIR DAY</span>
+                <span class="title-line script-word">loud.</span>
             </h1>
-            <p class="landing-sub">Aesthetic appreciation boards with custom backgrounds, GIFs,
-                voice notes &amp; music — built by you, filled with love by everyone.</p>
+            <p class="landing-sub">Build a board, pick a vibe, drop the link —
+                and let everyone flood it with love.</p>
 
             <div class="cta-container">
-                <button class="cta-button cta-glow" onclick="toggleFloatingCar()">
-                    <span>🚀 Create Your Vibe</span>
-                </button>
+                <button class="cta-button cta-main" onclick="toggleFloatingCar()">Create Your Vibe</button>
                 <button class="cta-secondary" onclick="openJoinModal()">I have a code →</button>
 
                 <!-- Floating Card Car Layout -->
@@ -64,13 +56,32 @@
                     <!-- Car buttons will be populated by JS -->
                 </div>
             </div>
+        </div>
 
-            <div class="feature-pills">
-                <span class="pill">🖼️ Custom backgrounds</span>
-                <span class="pill">🎞️ GIF messages</span>
-                <span class="pill">🎙️ Voice notes</span>
-                <span class="pill">🎵 Board music</span>
-                <span class="pill">⚡ Live updates</span>
+        <!-- Vibe gallery grid -->
+        <div class="vibe-grid">
+            <div class="vibe-tile" onclick="selectAestheticFromCar('tech-neon')">
+                <img src="images/tech-neonbg.jpeg" alt="Tech Neon">
+                <span class="vibe-label">Tech<br>Neon</span>
+            </div>
+            <div class="vibe-tile" onclick="selectAestheticFromCar('cottage-core')">
+                <img src="images/cottage-corebg.jpeg" alt="Cottage Core">
+                <span class="vibe-label">Cottage<br>Core</span>
+            </div>
+            <div class="vibe-tile" onclick="selectAestheticFromCar('retro-90s')">
+                <img src="images/retro-90sbg.jpeg" alt="90s Retro">
+                <span class="vibe-label">90s<br>Retro</span>
+            </div>
+            <div class="vibe-tile" onclick="selectAestheticFromCar('dark-academia')">
+                <img src="images/dark-academiabg.jpeg" alt="Dark Academia">
+                <span class="vibe-label">Dark<br>Academia</span>
+            </div>
+            <div class="vibe-tile" onclick="selectAestheticFromCar('professional')">
+                <img src="images/professionalbg.jpeg" alt="Professional">
+                <span class="vibe-label">Clean<br>Minimal</span>
+            </div>
+            <div class="vibe-tile vibe-tile-custom" onclick="toggleFloatingCar()">
+                <span class="vibe-label vibe-label-dark">Your<br>Vibe ✦</span>
             </div>
         </div>
     </section>
