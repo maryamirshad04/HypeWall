@@ -9,6 +9,7 @@ const UIController = {
         this.setupEventListeners();
         this.renderAesthetics();
         this.createFloatingCards();
+        this.spawnConfetti();
         console.log('UI Controller initialized');
     },
 
@@ -108,6 +109,28 @@ const UIController = {
             card.style.transform = `scale(${scale})`;
 
             this.elements.floatingCards.appendChild(card);
+        }
+    },
+
+    // Constantly falling confetti inside the hero banner
+    spawnConfetti: function () {
+        const layer = document.getElementById('confettiLayer');
+        if (!layer) return;
+
+        const colors = ['#29c5f6', '#ff2e88', '#8b5cf6', '#ffffff', '#111111', '#ff7a00'];
+        const pieces = 45;
+        layer.innerHTML = '';
+
+        for (let i = 0; i < pieces; i++) {
+            const piece = document.createElement('span');
+            piece.style.left = Math.random() * 100 + '%';
+            piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+            piece.style.animationDuration = (4 + Math.random() * 6) + 's';
+            piece.style.animationDelay = (-Math.random() * 10) + 's';
+            piece.style.width = (6 + Math.random() * 7) + 'px';
+            piece.style.height = (9 + Math.random() * 8) + 'px';
+            if (Math.random() > 0.5) piece.style.borderRadius = '50%';
+            layer.appendChild(piece);
         }
     },
 

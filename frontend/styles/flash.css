@@ -6,62 +6,83 @@
 
 :root {
     --ink: #111111;
-    --paper: #ffffff;
+    --paper: #f7f1e3;   /* warm cream */
     --electric: #ffe600;   /* punchy yellow */
     --cyan: #29c5f6;
     --magenta: #ff2e88;
     --violet: #8b5cf6;
 }
 
-body { background: var(--paper); }
+/* Cream ground with a soft paper-grain texture */
+body {
+    background-color: var(--paper);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
 
 /* ── Landing ────────────────────────────────────────────────── */
 .landing {
-    background: var(--paper) !important;
+    background: transparent !important;
     min-height: auto !important;
     display: block !important;
-    padding-top: 130px !important;
+    padding-top: 92px !important;
     padding-bottom: 0 !important;
-}
-
-/* Yellow edge strip, like the reference's top-right block */
-.landing::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 34%;
-    height: 150px;
-    background: var(--electric);
-    z-index: 0;
-}
-
-.landing::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 12%;
-    height: 10px;
-    background: var(--electric);
 }
 
 /* kill the old floating cards entirely — clean ground */
 .floating-cards { display: none !important; }
 
-/* ── Hero content ───────────────────────────────────────────── */
+/* ── Hero banner — full-width electric yellow ───────────────── */
 .landing-content {
-    background: transparent !important;
+    background: var(--electric) !important;
     border: none !important;
+    border-radius: 0 !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
-    max-width: 900px !important;
-    margin: 0 auto;
-    padding: 2rem 2rem 3rem !important;
+    max-width: none !important;
+    width: 100%;
+    margin: 0;
+    padding: 4rem 2rem 4.5rem !important;
     position: relative;
     z-index: 2;
     text-align: center;
+    overflow: hidden;
+}
+
+/* ── Confetti constantly falling inside the banner ──────────── */
+.confetti-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.confetti-layer span {
+    position: absolute;
+    top: -20px;
+    width: 10px;
+    height: 14px;
+    opacity: 0.9;
+    animation: confettiFall linear infinite;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-30px) rotate(0deg);
+        opacity: 0;
+    }
+    8% { opacity: 0.95; }
+    100% {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0.9;
+    }
+}
+
+/* content sits above the confetti */
+.landing-content > *:not(.confetti-layer) {
+    position: relative;
+    z-index: 1;
 }
 
 .hero-kicker {
@@ -70,7 +91,7 @@ body { background: var(--paper); }
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: #777 !important;
+    color: rgba(17, 17, 17, 0.55) !important;
     margin-bottom: 1.6rem !important;
 }
 
@@ -112,7 +133,7 @@ body { background: var(--paper); }
     text-transform: none;
     font-size: 1.45em;
     line-height: 1.05;
-    background: linear-gradient(100deg, var(--cyan) 0%, var(--violet) 35%, var(--magenta) 65%, var(--electric) 100%);
+    background: linear-gradient(100deg, var(--cyan) 0%, var(--violet) 35%, var(--magenta) 65%, #ff7a00 100%);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
@@ -142,11 +163,11 @@ body { background: var(--paper); }
 @keyframes loudGlow {
     from {
         filter: drop-shadow(3px 4px 0 rgba(17, 17, 17, 0.9))
-                drop-shadow(0 0 6px rgba(255, 230, 0, 0.35));
+                drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
     }
     to {
         filter: drop-shadow(3px 4px 0 rgba(17, 17, 17, 0.9))
-                drop-shadow(0 0 22px rgba(255, 46, 136, 0.75));
+                drop-shadow(0 0 24px rgba(255, 46, 136, 0.8));
     }
 }
 
@@ -163,7 +184,7 @@ body { background: var(--paper); }
 }
 
 .landing-sub {
-    color: #444 !important;
+    color: rgba(17, 17, 17, 0.8) !important;
     font-size: 1.1rem !important;
     font-weight: 500;
     max-width: 480px;
@@ -181,7 +202,7 @@ body { background: var(--paper); }
     letter-spacing: 1.5px;
     text-transform: uppercase;
     padding: 1.2rem 2.6rem !important;
-    box-shadow: 6px 6px 0 var(--electric) !important;
+    box-shadow: 6px 6px 0 #ffffff !important;
     transition: all 0.2s ease !important;
     animation: none !important;
 }
@@ -194,7 +215,7 @@ body { background: var(--paper); }
 
 .cta-main:active {
     transform: translate(2px, 2px) !important;
-    box-shadow: 2px 2px 0 var(--electric) !important;
+    box-shadow: 2px 2px 0 #ffffff !important;
 }
 
 .cta-secondary {
@@ -345,7 +366,7 @@ body { background: var(--paper); }
 
 /* ── Navbar — crisp white, black type ───────────────────────── */
 .navbar {
-    background: rgba(255, 255, 255, 0.92) !important;
+    background: rgba(247, 241, 227, 0.94) !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08) !important;
