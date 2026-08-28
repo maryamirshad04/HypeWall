@@ -3,7 +3,15 @@ const cors = require('cors');
 const path = require('path');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
-require('dotenv').config();
+// Always read backend/.env, whatever directory the server was started from
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
+if (!process.env.MONGODB_URI) {
+  console.error('\n❌ MONGODB_URI is not set.');
+  console.error('   Create a file at backend/.env containing:\n');
+  console.error('   MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/genzkudo\n');
+  process.exit(1);
+}
 
 const app = express();
 app.use(cors());
