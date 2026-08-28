@@ -173,6 +173,13 @@ const App = {
             return;
         }
         
+        // Background image + music travel in one request, so guard the total
+        const total = MediaUtils.encodedSize(this.customBgImage) + MediaUtils.encodedSize(this.boardBgAudio);
+        if (total > MediaUtils.MAX_TOTAL_ENCODED_BYTES) {
+            alert('Your background image and music are too large together. Try a smaller image or a shorter track.');
+            return;
+        }
+
         try {
             console.log('Calling API to create board...');
             const boardData = await ApiService.createBoard(aesthetic, name, this.customBgImage, this.boardBgAudio);

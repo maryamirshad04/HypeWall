@@ -7,8 +7,9 @@ require('dotenv').config();
 
 const app = express();
 app.use(cors());
-// Large limit to allow base64 media (custom backgrounds, GIFs, audio) in JSON payloads
-app.use(express.json({ limit: '12mb' }));
+// Allows base64 media (custom backgrounds, GIFs, audio) in JSON payloads.
+// Vercel rejects any request body over 4.5mb before it reaches this handler.
+app.use(express.json({ limit: '4.5mb' }));
 
 // Serve frontend static files (used in local dev; Vercel handles this via routes in production)
 app.use(express.static(path.join(__dirname, '../frontend')));

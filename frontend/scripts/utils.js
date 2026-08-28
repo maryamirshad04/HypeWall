@@ -57,8 +57,16 @@ const Utils = {
 
 // ─── Media helpers (uploads → data URLs) ─────────────────────────
 const MediaUtils = {
-    MAX_AUDIO_BYTES: 4 * 1024 * 1024, // 4MB
-    MAX_GIF_BYTES: 3 * 1024 * 1024,   // 3MB (GIFs can't be recompressed client-side)
+    // Vercel caps a serverless request body at 4.5MB and base64 inflates a
+    // file by ~33%, so keep raw uploads well under that ceiling.
+    MAX_AUDIO_BYTES: 2 * 1024 * 1024,       // 2MB  -> ~2.7MB encoded
+    MAX_GIF_BYTES: 1.5 * 1024 * 1024,       // 1.5MB -> ~2MB encoded
+    MAX_TOTAL_ENCODED_BYTES: 4 * 1024 * 1024, // combined payload ceiling
+
+    // Rough size of a data URL once base64-encoded
+    encodedSize: function (dataUrl) {
+        return dataUrl ? Math.ceil(dataUrl.length * 0.75) : 0;
+    },
 
     // Read any file as a data URL
     fileToDataUrl: function (file) {
@@ -75,7 +83,7 @@ const MediaUtils = {
     imageToDataUrl: async function (file) {
         if (file.type === 'image/gif') {
             if (file.size > this.MAX_GIF_BYTES) {
-                throw new Error('GIF is too large (max 3MB). Try a smaller one!');
+                throw new Error('That GIF is too large (max 1.5MB). Try a smaller one!');
             }
             return this.fileToDataUrl(file);
         }
@@ -88,7 +96,7 @@ const MediaUtils = {
             image.src = rawUrl;
         });
 
-        const MAX_DIM = 1600;
+        const MAX_DIM = 1400;
         let { width, height } = img;
         if (width > MAX_DIM || height > MAX_DIM) {
             const scale = MAX_DIM / Math.max(width, height);
@@ -105,7 +113,7 @@ const MediaUtils = {
 
     audioToDataUrl: async function (file) {
         if (file.size > this.MAX_AUDIO_BYTES) {
-            throw new Error('Audio is too large (max 4MB). Try a shorter clip!');
+            throw new Error('That audio is too large (max 2MB). Try a shorter clip!');
         }
         return this.fileToDataUrl(file);
     }

@@ -452,6 +452,12 @@ const BoardController = {
             return;
         }
 
+        const totalMedia = MediaUtils.encodedSize(this.commentGif) + MediaUtils.encodedSize(this.commentAudio);
+        if (totalMedia > MediaUtils.MAX_TOTAL_ENCODED_BYTES) {
+            alert('Your attachments are too large together. Try a smaller GIF or a shorter clip.');
+            return;
+        }
+
         try {
             console.log('📤 Posting message...');
             
