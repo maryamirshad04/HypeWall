@@ -3,11 +3,21 @@ const cors = require('cors');
 const path = require('path');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
-require('dotenv').config();
+// Always read backend/.env, whatever directory the server was started from
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
+if (!process.env.MONGODB_URI) {
+  console.error('\n❌ MONGODB_URI is not set.');
+  console.error('   Create a file at backend/.env containing:\n');
+  console.error('   MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/genzkudo\n');
+  process.exit(1);
+}
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+// Allows base64 media (custom backgrounds, GIFs, audio) in JSON payloads.
+// Vercel rejects any request body over 4.5mb before it reaches this handler.
+app.use(express.json({ limit: '4.5mb' }));
 
 // Serve frontend static files (used in local dev; Vercel handles this via routes in production)
 app.use(express.static(path.join(__dirname, '../frontend')));
@@ -41,13 +51,20 @@ function generateCode() {
 // POST /api/boards  – create a board
 app.post('/api/boards', async (req, res) => {
   try {
-    const { aesthetic = 'professional', recipient_name = 'Someone Special' } = req.body;
+    const {
+      aesthetic = 'professional',
+      recipient_name = 'Someone Special',
+      bg_image = null,   // optional custom background (data URL)
+      bg_audio = null,   // optional board background music (data URL)
+    } = req.body;
     const database = await getDb();
 
     const board = {
       id: uuidv4(),
       aesthetic,
       recipient_name,
+      bg_image,
+      bg_audio,
       join_code: generateCode(),
       view_token: uuidv4(),
       created_at: new Date().toISOString(),
@@ -74,6 +91,8 @@ app.get('/api/boards/code/:code', async (req, res) => {
       aesthetic: board.aesthetic,
       recipient_name: board.recipient_name,
       join_code: board.join_code,
+      bg_image: board.bg_image || null,
+      bg_audio: board.bg_audio || null,
     });
   } catch (err) {
     console.error(err);
@@ -128,6 +147,8 @@ app.post('/api/boards/:board_id/comments', async (req, res) => {
       author: req.body.author || 'Anonymous',
       message: req.body.message || '',
       color: req.body.color || '#FFD700',
+      gif: req.body.gif || null,     // optional GIF/image attachment (data URL or GIF link)
+      audio: req.body.audio || null, // optional audio attachment (data URL)
       created_at: new Date().toISOString(),
     };
 

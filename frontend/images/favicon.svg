@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="HypeWall">
+  <g stroke="#16130d" stroke-width="3.8" stroke-linejoin="round">
+    <rect x="9" y="19" width="26" height="24" rx="1.5" fill="#1fb6d4" transform="rotate(-13 22 31)"/>
+    <rect x="20" y="12" width="25" height="27" rx="3.5" fill="#ff3d7f" transform="rotate(10 32 25)"/>
+    <rect x="15" y="25" width="30" height="26" rx="2" fill="#e3a52f" transform="rotate(-4 30 38)"/>
+  </g>
+</svg>

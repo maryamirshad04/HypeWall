@@ -4,6 +4,9 @@ const BoardController = {
     isCreator: false,
     selectedColor: '#FFD700',
     selectedAesthetic: 'professional',
+    commentGif: null,    // pending GIF/image attachment (data URL)
+    commentAudio: null,  // pending audio attachment (data URL)
+    mediaInputsBound: false,
 
     // Aesthetic colors mapping for COMMENTS ONLY
     aestheticColors: {
@@ -77,6 +80,76 @@ const BoardController = {
 
         this.updateUI();
         this.setupColorPicker();
+        this.setupMediaInputs();
+    },
+
+    // Wire up GIF/audio attachment inputs + custom color picker (once)
+    setupMediaInputs: function () {
+        if (this.mediaInputsBound) return;
+        this.mediaInputsBound = true;
+
+        const gifInput = document.getElementById('commentGifInput');
+        if (gifInput) {
+            gifInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    this.commentGif = await MediaUtils.imageToDataUrl(file);
+                    document.getElementById('commentGifImg').src = this.commentGif;
+                    document.getElementById('commentGifPreview').classList.remove('hidden');
+                } catch (err) {
+                    alert(err.message);
+                    e.target.value = '';
+                }
+            });
+        }
+
+        const audioInput = document.getElementById('commentAudioInput');
+        if (audioInput) {
+            audioInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    this.commentAudio = await MediaUtils.audioToDataUrl(file);
+                    document.getElementById('commentAudioName').textContent = file.name;
+                    document.getElementById('commentAudioPreview').classList.remove('hidden');
+                } catch (err) {
+                    alert(err.message);
+                    e.target.value = '';
+                }
+            });
+        }
+
+        const customColor = document.getElementById('customColorInput');
+        if (customColor) {
+            const selectCustom = () => {
+                this.selectedColor = customColor.value;
+                document.querySelectorAll('#colorPicker .color-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                    opt.style.transform = 'scale(1)';
+                });
+                customColor.closest('.custom-color-wrap').classList.add('selected');
+            };
+            customColor.addEventListener('input', selectCustom);
+            customColor.addEventListener('click', selectCustom);
+        }
+
+        window.clearCommentGif = () => this.clearCommentGif();
+        window.clearCommentAudio = () => this.clearCommentAudio();
+    },
+
+    clearCommentGif: function () {
+        this.commentGif = null;
+        const input = document.getElementById('commentGifInput');
+        if (input) input.value = '';
+        document.getElementById('commentGifPreview').classList.add('hidden');
+    },
+
+    clearCommentAudio: function () {
+        this.commentAudio = null;
+        const input = document.getElementById('commentAudioInput');
+        if (input) input.value = '';
+        document.getElementById('commentAudioPreview').classList.add('hidden');
     },
 
     // Update UI based on board state
@@ -344,6 +417,8 @@ const BoardController = {
     // Select color for comments
     selectColor: function (color, element) {
         this.selectedColor = color;
+        const customWrap = document.querySelector('.custom-color-wrap');
+        if (customWrap) customWrap.classList.remove('selected');
         document.querySelectorAll('#colorPicker .color-option').forEach(opt => {
             opt.classList.remove('selected');
             opt.style.transform = 'scale(1)';
@@ -367,13 +442,19 @@ const BoardController = {
         const author = authorInput.value || 'Anonymous';
         const message = messageInput.value;
 
-        if (!message.trim()) {
-            alert('Please write a message!');
+        if (!message.trim() && !this.commentGif && !this.commentAudio) {
+            alert('Please write a message or attach a GIF / audio!');
             return;
         }
 
         if (!this.currentBoard || !this.currentBoard.id) {
             alert('No board selected!');
+            return;
+        }
+
+        const totalMedia = MediaUtils.encodedSize(this.commentGif) + MediaUtils.encodedSize(this.commentAudio);
+        if (totalMedia > MediaUtils.MAX_TOTAL_ENCODED_BYTES) {
+            alert('Your attachments are too large together. Try a smaller GIF or a shorter clip.');
             return;
         }
 
@@ -383,7 +464,9 @@ const BoardController = {
             await ApiService.addComment(this.currentBoard.id, {
                 author: author,
                 message: message,
-                color: this.selectedColor
+                color: this.selectedColor,
+                gif: this.commentGif,
+                audio: this.commentAudio
             });
 
             console.log('Message posted successfully!');
@@ -391,6 +474,8 @@ const BoardController = {
             // Clear form
             authorInput.value = '';
             messageInput.value = '';
+            this.clearCommentGif();
+            this.clearCommentAudio();
 
             // Show success message with aesthetic color
             const colors = this.boardPageColors[this.selectedAesthetic];

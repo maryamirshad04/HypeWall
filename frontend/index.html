@@ -9,9 +9,14 @@
     <title>HypeWall – Create Aesthetic Appreciation Boards Online</title>
 
     <!-- CSS Files -->
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg?v=13">
+    <link rel="apple-touch-icon" href="images/logo-mark.svg?v=13">
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/animations.css">
+    <link rel="stylesheet" href="styles/flash.css?v=13">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Kaushan+Script&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -19,15 +24,17 @@
 
     <!-- Navbar -->
     <nav class="navbar">
-        <div class="logo">HYPE WALL</div>
+        <div class="logo">
+            <img class="logo-mark" src="images/logo-mark.svg?v=13" alt="" width="40" height="40">
+            <span class="logo-words">
+                <span class="logo-blk">HYPE</span>
+                <span class="logo-scr">wall.</span>
+            </span>
+        </div>
         <div class="nav-buttons">
-            <div style="position: relative;">
-                <button class="btn-library" onclick="toggleLibrary()">Library</button>
-                <div class="library-dropdown" id="libraryDropdown">
-                    <!-- Dropdown items will be populated by JS -->
-                </div>
-            </div>
-            <button class="btn-join" onclick="openJoinModal()">Join with Code</button>
+            <button class="nav-link" onclick="openInfoPage('about')">About Us</button>
+            <button class="nav-link" onclick="openInfoPage('contact')">Contact Us</button>
+            <button class="nav-link" onclick="openInfoPage('privacy')">Privacy</button>
         </div>
     </nav>
 
@@ -36,10 +43,18 @@
         <div class="floating-cards" id="floatingCards"></div>
 
         <div class="landing-content">
-            <h1>HYPE WALL</h1>
-            <p>Create aesthetic boards that hit different</p>
+            <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
+            <p class="hero-kicker">appreciation boards · gifs · voice notes · music</p>
+            <h1 class="landing-title">
+                <span class="title-line">MAKE THEIR DAY</span>
+                <span class="title-line script-word">loud.</span>
+            </h1>
+            <p class="landing-sub">Build a board, pick a vibe, drop the link,
+                and let everyone flood it with love.</p>
+
             <div class="cta-container">
-                <button class="cta-button" onclick="toggleFloatingCar()">Create Your Vibe</button>
+                <button class="cta-button cta-main" onclick="openCreateModal()">Create Your Vibe</button>
+                <button class="cta-secondary" onclick="openJoinModal()">I have a code →</button>
 
                 <!-- Floating Card Car Layout -->
                 <div class="floating-card-car" id="floatingCardCar">
@@ -47,19 +62,80 @@
                 </div>
             </div>
         </div>
+
+        <!-- Vibe gallery grid -->
+        <div class="vibe-grid">
+            <div class="vibe-tile" onclick="selectAestheticFromCar('tech-neon')">
+                <img src="images/tech-neonbg.jpeg" alt="Tech Neon">
+                <span class="vibe-label">Tech<br>Neon</span>
+            </div>
+            <div class="vibe-tile" onclick="selectAestheticFromCar('cottage-core')">
+                <img src="images/cottage-corebg.jpeg" alt="Cottage Core">
+                <span class="vibe-label">Cottage<br>Core</span>
+            </div>
+            <div class="vibe-tile" onclick="selectAestheticFromCar('retro-90s')">
+                <img src="images/retro-90sbg.jpeg" alt="90s Retro">
+                <span class="vibe-label">90s<br>Retro</span>
+            </div>
+            <div class="vibe-tile" onclick="selectAestheticFromCar('dark-academia')">
+                <img src="images/dark-academiabg.jpeg" alt="Dark Academia">
+                <span class="vibe-label">Dark<br>Academia</span>
+            </div>
+            <div class="vibe-tile" onclick="selectAestheticFromCar('professional')">
+                <img src="images/professionalbg.jpeg" alt="Professional">
+                <span class="vibe-label">Clean<br>Minimal</span>
+            </div>
+            <div class="vibe-tile vibe-tile-custom" onclick="openCreateModal()">
+                <span class="vibe-label vibe-label-dark">Your<br>Vibe ✦</span>
+            </div>
+        </div>
     </section>
+
+    <!-- Info Pages (About / Contact / Privacy) -->
+    <div class="info-page" id="infoPage">
+        <div class="info-content">
+            <button class="cta-secondary btn-back-info" onclick="closeInfoPage()">← Back</button>
+            <p class="hero-kicker" id="infoKicker"></p>
+            <h1 class="landing-title info-title"><span class="script-word script-static" id="infoTitle"></span></h1>
+            <div class="info-body" id="infoBody"></div>
+        </div>
+    </div>
 
     <!-- Library Modal -->
     <div class="modal" id="libraryModal">
         <div class="modal-content" style="max-width: 500px;">
             <div class="modal-header">
-                <h2>Create Your Board</h2>
+                <h2>Create Your Board<span class="modal-vibe" id="modalThemeName"></span></h2>
                 <button class="close-modal" onclick="closeLibrary()">&times;</button>
             </div>
 
             <div class="form-group">
                 <label>Who is this for?</label>
                 <input type="text" id="recipientName" placeholder="Enter their name..." autofocus>
+            </div>
+
+            <div class="form-group">
+                <label>Custom background image <span class="optional-tag">optional, overrides the theme</span></label>
+                <label class="upload-drop" for="customBgInput">
+                    <span id="customBgLabel">🖼️ Upload an image</span>
+                </label>
+                <input type="file" id="customBgInput" accept="image/*" hidden>
+                <div class="upload-preview hidden" id="customBgPreview">
+                    <img id="customBgImg" alt="Background preview">
+                    <button type="button" class="remove-upload" onclick="clearCustomBg()">✕</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Board music <span class="optional-tag">optional, plays when the board is opened</span></label>
+                <label class="upload-drop" for="boardAudioInput">
+                    <span id="boardAudioLabel">🎵 Upload audio (mp3, m4a…)</span>
+                </label>
+                <input type="file" id="boardAudioInput" accept="audio/*" hidden>
+                <div class="upload-preview hidden" id="boardAudioPreview">
+                    <span class="audio-chip">🎵 <span id="boardAudioName"></span></span>
+                    <button type="button" class="remove-upload" onclick="clearBoardAudio()">✕</button>
+                </div>
             </div>
 
             <button class="create-button" onclick="createBoard()">Create Board</button>
@@ -133,11 +209,38 @@
             </div>
             <div class="form-group">
                 <label>Pick a Color</label>
-                <div class="color-picker" id="colorPicker"></div>
+                <div class="color-picker-row">
+                    <div class="color-picker" id="colorPicker"></div>
+                    <label class="custom-color-wrap" title="Pick any color">
+                        <input type="color" id="customColorInput" value="#FFD700">
+                        <span>🎨 Custom</span>
+                    </label>
+                </div>
             </div>
             <div class="form-group">
                 <label>Your Message</label>
                 <textarea id="commentMessage" placeholder="Say something nice..." rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Add media <span class="optional-tag">optional</span></label>
+                <div class="media-buttons">
+                    <label class="upload-drop small" for="commentGifInput">
+                        <span>🎞️ GIF / image</span>
+                    </label>
+                    <input type="file" id="commentGifInput" accept="image/*" hidden>
+                    <label class="upload-drop small" for="commentAudioInput">
+                        <span>🎙️ Audio</span>
+                    </label>
+                    <input type="file" id="commentAudioInput" accept="audio/*" hidden>
+                </div>
+                <div class="upload-preview hidden" id="commentGifPreview">
+                    <img id="commentGifImg" alt="GIF preview">
+                    <button type="button" class="remove-upload" onclick="clearCommentGif()">✕</button>
+                </div>
+                <div class="upload-preview hidden" id="commentAudioPreview">
+                    <span class="audio-chip">🎙️ <span id="commentAudioName"></span></span>
+                    <button type="button" class="remove-upload" onclick="clearCommentAudio()">✕</button>
+                </div>
             </div>
             <button class="create-button" onclick="postMessage()">Post Message</button>
         </div>
@@ -150,6 +253,8 @@
             <p class="view-subtitle">All the love and appreciation in one place</p>
             <button class="btn-back-to-board" onclick="returnToBoard()">← Back to Board</button>
         </div>
+
+        <button class="music-toggle hidden" id="musicToggle" onclick="toggleBoardMusic()" title="Board music">🎵</button>
 
         <div class="comments-container">
             <div class="comments-grid" id="commentsGrid">
@@ -164,12 +269,12 @@
     </div>
 
     <!-- JavaScript Files -->
-    <script src="scripts/utils.js"></script>
-    <script src="scripts/api.js"></script>
-    <script src="scripts/ui.js"></script>
-    <script src="scripts/board.js"></script>
-    <script src="scripts/view.js"></script>
-    <script src="scripts/main.js"></script>
+    <script src="scripts/utils.js?v=13"></script>
+    <script src="scripts/api.js?v=13"></script>
+    <script src="scripts/ui.js?v=13"></script>
+    <script src="scripts/board.js?v=13"></script>
+    <script src="scripts/view.js?v=13"></script>
+    <script src="scripts/main.js?v=13"></script>
 </body>
 
 </html>

@@ -3,14 +3,16 @@ const ApiService = {
     API_URL: CONSTANTS.API_URL,
 
     // Create a new board
-    createBoard: async function(aesthetic, recipientName) {
+    createBoard: async function(aesthetic, recipientName, bgImage = null, bgAudio = null) {
         try {
             const response = await fetch(`${this.API_URL}/boards`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    aesthetic: aesthetic, 
-                    recipient_name: recipientName 
+                body: JSON.stringify({
+                    aesthetic: aesthetic,
+                    recipient_name: recipientName,
+                    bg_image: bgImage,
+                    bg_audio: bgAudio
                 })
             });
             

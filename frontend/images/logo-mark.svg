@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="HypeWall">
+  <g stroke="#16130d" stroke-width="2.2" stroke-linejoin="round">
+    <rect x="9" y="19" width="26" height="24" rx="1.5" fill="#1fb6d4" transform="rotate(-13 22 31)"/>
+    <rect x="20" y="12" width="25" height="27" rx="3.5" fill="#ff3d7f" transform="rotate(10 32 25)"/>
+    <g transform="rotate(-4 30 38)">
+      <rect x="15" y="25" width="30" height="26" rx="2" fill="#e3a52f"/>
+      <path d="M45 44 L38 51 L45 51 Z" fill="#c07f14" stroke-width="1.6"/>
+    </g>
+  </g>
+  <g transform="rotate(-4 30 38)" stroke="#16130d" stroke-width="1.7" stroke-linecap="round" opacity="0.5" fill="none">
+    <path d="M21 33 H38"/>
+    <path d="M21 38 H33"/>
+  </g>
+  <circle cx="53" cy="10" r="2.5" fill="#7c5cff"/>
+  <circle cx="59" cy="21" r="1.9" fill="#ff6b35"/>
+</svg>

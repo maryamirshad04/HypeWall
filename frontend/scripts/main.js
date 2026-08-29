@@ -1,5 +1,8 @@
 // Main Application - FIXED VERSION
 const App = {
+    // Pending uploads for board creation (data URLs)
+    customBgImage: null,
+    boardBgAudio: null,
     // Initialize application
     init: function() {
         console.log('App initializing...');
@@ -48,14 +51,80 @@ const App = {
                 ViewController.returnToBoard();
             }
         };
-        
+        window.clearCustomBg = () => this.clearCustomBg();
+        window.clearBoardAudio = () => this.clearBoardAudio();
+        window.toggleBoardMusic = () => {
+            if (typeof ViewController !== 'undefined') ViewController.toggleBoardMusic();
+        };
+
+        this.bindUploadInputs();
         console.log('Global functions bound');
+    },
+
+    // Wire up the create-modal upload inputs
+    bindUploadInputs: function() {
+        const bgInput = document.getElementById('customBgInput');
+        if (bgInput) {
+            bgInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    this.customBgImage = await MediaUtils.imageToDataUrl(file);
+                    document.getElementById('customBgImg').src = this.customBgImage;
+                    document.getElementById('customBgPreview').classList.remove('hidden');
+                    document.getElementById('customBgLabel').textContent = '🖼️ ' + file.name;
+                } catch (err) {
+                    alert(err.message);
+                    e.target.value = '';
+                }
+            });
+        }
+
+        const audioInput = document.getElementById('boardAudioInput');
+        if (audioInput) {
+            audioInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                try {
+                    this.boardBgAudio = await MediaUtils.audioToDataUrl(file);
+                    document.getElementById('boardAudioName').textContent = file.name;
+                    document.getElementById('boardAudioPreview').classList.remove('hidden');
+                } catch (err) {
+                    alert(err.message);
+                    e.target.value = '';
+                }
+            });
+        }
+    },
+
+    clearCustomBg: function() {
+        this.customBgImage = null;
+        const input = document.getElementById('customBgInput');
+        if (input) input.value = '';
+        document.getElementById('customBgPreview').classList.add('hidden');
+        document.getElementById('customBgLabel').textContent = '🖼️ Upload an image';
+    },
+
+    clearBoardAudio: function() {
+        this.boardBgAudio = null;
+        const input = document.getElementById('boardAudioInput');
+        if (input) input.value = '';
+        document.getElementById('boardAudioPreview').classList.add('hidden');
     },
 
     // Check for board in URL parameters
     checkForBoardInURL: function() {
         console.log('Checking URL parameters...');
         
+        // Direct link to an info page, e.g. /?page=about
+        const infoKey = Utils.getUrlParameter('page');
+        if (infoKey && UIController.INFO_PAGES && UIController.INFO_PAGES[infoKey]) {
+            console.log('Opening info page from URL:', infoKey);
+            history.replaceState({ infoPage: infoKey }, '', '?page=' + infoKey);
+            UIController.openInfoPage(infoKey, true);
+            return;
+        }
+
         const boardId = Utils.getUrlParameter('board');
         const code = Utils.getUrlParameter('code');
         const contribute = Utils.getUrlParameter('contribute');
@@ -88,6 +157,7 @@ const App = {
     selectAesthetic: function(aesthetic) {
         console.log('Aesthetic selected:', aesthetic);
         BoardController.selectedAesthetic = aesthetic;
+        UIController.renderModalThemes();
         UIController.openLibraryModal();
     },
 
@@ -112,11 +182,20 @@ const App = {
             return;
         }
         
+        // Background image + music travel in one request, so guard the total
+        const total = MediaUtils.encodedSize(this.customBgImage) + MediaUtils.encodedSize(this.boardBgAudio);
+        if (total > MediaUtils.MAX_TOTAL_ENCODED_BYTES) {
+            alert('Your background image and music are too large together. Try a smaller image or a shorter track.');
+            return;
+        }
+
         try {
             console.log('Calling API to create board...');
-            const boardData = await ApiService.createBoard(aesthetic, name);
+            const boardData = await ApiService.createBoard(aesthetic, name, this.customBgImage, this.boardBgAudio);
             console.log('Board created successfully:', boardData);
-            
+            this.clearCustomBg();
+            this.clearBoardAudio();
+
             // Initialize board as creator (true means creator)
             BoardController.init(boardData, true);
             

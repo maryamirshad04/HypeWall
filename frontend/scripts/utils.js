@@ -55,6 +55,70 @@ const Utils = {
     }
 };
 
+// ─── Media helpers (uploads → data URLs) ─────────────────────────
+const MediaUtils = {
+    // Vercel caps a serverless request body at 4.5MB and base64 inflates a
+    // file by ~33%, so keep raw uploads well under that ceiling.
+    MAX_AUDIO_BYTES: 2 * 1024 * 1024,       // 2MB  -> ~2.7MB encoded
+    MAX_GIF_BYTES: 1.5 * 1024 * 1024,       // 1.5MB -> ~2MB encoded
+    MAX_TOTAL_ENCODED_BYTES: 4 * 1024 * 1024, // combined payload ceiling
+
+    // Rough size of a data URL once base64-encoded
+    encodedSize: function (dataUrl) {
+        return dataUrl ? Math.ceil(dataUrl.length * 0.75) : 0;
+    },
+
+    // Read any file as a data URL
+    fileToDataUrl: function (file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    },
+
+    // Downscale + compress a still image; GIFs are passed through (with size cap)
+    // so their animation is preserved.
+    imageToDataUrl: async function (file) {
+        if (file.type === 'image/gif') {
+            if (file.size > this.MAX_GIF_BYTES) {
+                throw new Error('That GIF is too large (max 1.5MB). Try a smaller one!');
+            }
+            return this.fileToDataUrl(file);
+        }
+
+        const rawUrl = await this.fileToDataUrl(file);
+        const img = await new Promise((resolve, reject) => {
+            const image = new Image();
+            image.onload = () => resolve(image);
+            image.onerror = () => reject(new Error('Could not read that image.'));
+            image.src = rawUrl;
+        });
+
+        const MAX_DIM = 1400;
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+            const scale = MAX_DIM / Math.max(width, height);
+            width = Math.round(width * scale);
+            height = Math.round(height * scale);
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        return canvas.toDataURL('image/jpeg', 0.82);
+    },
+
+    audioToDataUrl: async function (file) {
+        if (file.size > this.MAX_AUDIO_BYTES) {
+            throw new Error('That audio is too large (max 2MB). Try a shorter clip!');
+        }
+        return this.fileToDataUrl(file);
+    }
+};
+
 // Constants
 const CONSTANTS = {
     API_URL: '/api',
@@ -76,17 +140,18 @@ const CONSTANTS = {
 };
 
 // Design card images for floating background
+// Cottagecore palette: sage, cream, moss, honey, terracotta, clay
 const DESIGN_CARDS = [
-    { bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)', type: 'gradient' },
-    { bg: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #9caf88 0%, #6b8e5a 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #f5edda 0%, #d9c8a8 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #d9a441 0%, #b9873e 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #c47e5a 0%, #a05f3f 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #b6cf9d 0%, #8fb573 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #e9dfc8 0%, #c9b490 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #7a9668 0%, #4c6b41 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #e4b57c 0%, #c99a5f 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #f0e6d0 0%, #dcc9a3 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #8a6d4f 0%, #6d4c33 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #aec99a 0%, #d9c8a8 100%)', type: 'gradient' },
+    { bg: 'linear-gradient(135deg, #f6efe0 0%, #e0d3b4 100%)', type: 'gradient' },
 ];
