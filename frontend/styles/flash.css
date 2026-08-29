@@ -25,7 +25,7 @@ body {
     background: transparent !important;
     min-height: auto !important;
     display: block;
-    padding-top: 92px !important;
+    padding-top: 104px !important;
     padding-bottom: 0 !important;
 }
 
@@ -384,13 +384,13 @@ body {
 .navbar .logo {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.75rem;
     line-height: 1;
 }
 
 .logo-mark {
-    width: 40px;
-    height: 40px;
+    width: 54px;
+    height: 54px;
     display: block;
     flex: none;
 }
@@ -404,7 +404,7 @@ body {
 
 .logo-blk {
     font-family: 'Archivo Black', 'Arial Black', sans-serif;
-    font-size: 1.02rem;
+    font-size: 1.4rem;
     letter-spacing: -0.02em;
     color: var(--ink);
     -webkit-text-fill-color: var(--ink);
@@ -412,18 +412,18 @@ body {
 
 .logo-scr {
     font-family: 'Kaushan Script', cursive;
-    font-size: 1.2rem;
-    color: var(--electric);
-    -webkit-text-fill-color: var(--electric);
-    text-shadow: 2px 2px 0 var(--ink);
+    font-size: 1.62rem;
+    color: var(--ink);
+    -webkit-text-fill-color: var(--ink);
+    text-shadow: 2px 2px 0 var(--electric);
     transform: rotate(-4deg);
     margin-top: -0.04em;
 }
 
 @media (max-width: 520px) {
-    .logo-mark { width: 32px; height: 32px; }
-    .logo-blk { font-size: 0.88rem; }
-    .logo-scr { font-size: 1rem; }
+    .logo-mark { width: 40px; height: 40px; }
+    .logo-blk { font-size: 1.05rem; }
+    .logo-scr { font-size: 1.2rem; }
 }
 
 .navbar .btn-library,
@@ -721,7 +721,7 @@ body {
     display: none;
     min-height: 100vh;
     background: transparent;
-    padding: 118px 1.5rem 5rem;
+    padding: 132px 1.5rem 5rem;
     position: relative;
 }
 
@@ -729,7 +729,7 @@ body {
 .info-page::before {
     content: '';
     position: absolute;
-    top: 92px;
+    top: 86px;
     left: 0;
     right: 0;
     height: 8px;
