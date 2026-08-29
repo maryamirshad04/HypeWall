@@ -116,6 +116,15 @@ const App = {
     checkForBoardInURL: function() {
         console.log('Checking URL parameters...');
         
+        // Direct link to an info page, e.g. /?page=about
+        const infoKey = Utils.getUrlParameter('page');
+        if (infoKey && UIController.INFO_PAGES && UIController.INFO_PAGES[infoKey]) {
+            console.log('Opening info page from URL:', infoKey);
+            history.replaceState({ infoPage: infoKey }, '', '?page=' + infoKey);
+            UIController.openInfoPage(infoKey, true);
+            return;
+        }
+
         const boardId = Utils.getUrlParameter('board');
         const code = Utils.getUrlParameter('code');
         const contribute = Utils.getUrlParameter('contribute');

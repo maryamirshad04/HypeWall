@@ -117,7 +117,7 @@ const UIController = {
         const layer = document.getElementById('confettiLayer');
         if (!layer) return;
 
-        const colors = ['#29c5f6', '#ff2e88', '#8b5cf6', '#ffffff', '#111111', '#ff7a00'];
+        const colors = ['#1fb6d4', '#ff3d7f', '#7c5cff', '#ffffff', '#111111', '#ff6b35'];
         const pieces = 45;
         layer.innerHTML = '';
 
@@ -276,34 +276,52 @@ const UIController = {
     // ─── Info pages (About / Contact / Privacy) ─────────────────
     INFO_PAGES: {
         about: {
-            kicker: 'the story',
+            kicker: 'how this whole thing started',
             title: 'about us.',
             body: `
-                <p>HypeWall started with a simple idea: celebrating someone should feel as special as the person you are celebrating.</p>
-                <p>We build free, aesthetic appreciation boards where friends, classmates, and teammates can drop messages, GIFs, voice notes, and music for the people they love. No paywalls, no sign-ups, no corporate energy.</p>
-                <p>This page is a placeholder. The full story is coming soon.</p>`
+                <p>So there was this class. And there was this professor who was, genuinely, <strong>that</strong> good. The kind who makes an 8am lecture feel like a plot twist.</p>
+                <p>The semester was wrapping up and we wanted to do something nice. Obviously: a kudos board. Everyone signs it, everyone says something lovely, she cries a little, we cry a little, beautiful.</p>
+                <p>Then we saw the price tag.</p>
+                <p>Look, we still made her one. She deserved it. But paying actual money just to let people type &ldquo;you changed my life&rdquo; into a box? That felt <em>icky</em>. Appreciation should not have a checkout page.</p>
+                <p>Cut to winter break. Vaniya, doing absolutely nothing productive, went &ldquo;wait&hellip; we could just build this ourselves.&rdquo; She pitched it to her friend Maryam. They laughed. It was a joke. It was <em>such</em> a joke.</p>
+                <p>And then, somehow, they were building it. Over the entire winter vacation. Hunched over laptops, cracking up at 2am, breaking things, fixing things, breaking them again, arguing about the exact shade of yellow. It was hectic. It was chaos. It was, honestly, the most fun either of them had all break.</p>
+                <p>So that is HypeWall. Free, forever, because hyping up the people you love should never have cost anything in the first place.</p>`
         },
         contact: {
-            kicker: 'say hi',
+            kicker: 'talk to us, we are right here',
             title: 'contact us.',
             body: `
-                <p>Questions, ideas, or just want to share a board that made someone cry happy tears? We would love to hear it.</p>
-                <p>Email: <strong>hello@hypewall.app</strong> (placeholder)</p>
-                <p>Socials coming soon. This page is a placeholder for now.</p>`
+                <p>Oh, you have <em>ideas</em>? You looked at this and thought &ldquo;cute, but what if it did this other thing too&rdquo;? Tell us.</p>
+                <p>Oh, you think a certain page is ugly? Bold. Correct, possibly. Tell us.</p>
+                <p>Oh, you found a bug? Something clicked and then simply&hellip; did not click back? Please tell us, we will go fix it immediately and pretend it never happened.</p>
+                <p>Oh, you just want to say hi and show us a board you made? That is our favourite email to get, actually.</p>
+                <p>Whatever it is, it lands in the same inbox:</p>
+                <p class="contact-email"><a href="mailto:vaniyaejaz@gmail.com">vaniyaejaz@gmail.com</a></p>
+                <p class="info-footnote">No fancy domain yet. We are working on it. Baby steps.</p>`
         },
         privacy: {
-            kicker: 'the boring but important stuff',
+            kicker: 'the serious page, kept short',
             title: 'privacy.',
             body: `
-                <p>Your boards belong to you. View links are private, and we never sell your data.</p>
-                <p>Messages and media you upload are stored only to display them on the board they were posted to.</p>
-                <p>This page is a placeholder. The full privacy policy is coming soon.</p>`
+                <p>Short version: your board is yours. We are not doing anything weird with it.</p>
+                <p><strong>No accounts.</strong> We never asked for your name, your email, or your birthday. We do not have them. We cannot lose them.</p>
+                <p><strong>No tracking, no ads, no data selling.</strong> There is no analytics pixel watching you pick a colour. Nobody is buying your feelings.</p>
+                <p><strong>Your links are unlisted.</strong> Boards are reached through long, random, basically unguessable links. Nobody stumbles onto yours by accident, and nothing is listed in a public directory.</p>
+                <p><strong>Everything travels encrypted.</strong> The connection is HTTPS, and your board data sits in an encrypted database.</p>
+                <p><strong>We are not reading your boards.</strong> Your messages, GIFs and voice notes are stored for exactly one reason: to show them on the board they were posted to. That is the whole job.</p>
+                <p class="info-footnote">Being straight with you: we run the servers, so in a strictly technical sense the data is not sealed off from us the way end-to-end encryption would seal it. We just have zero interest in your messages. Please do not use HypeWall to store passwords or anything genuinely sensitive.</p>`
         }
     },
 
-    openInfoPage: function(key) {
+    openInfoPage: function(key, fromHistory) {
         const page = this.INFO_PAGES[key];
         if (!page || !this.elements.infoPage) return;
+
+        // Give each info page its own address so it is a real, shareable page
+        if (!fromHistory) {
+            history.pushState({ infoPage: key }, '', '?page=' + key);
+        }
+        document.title = 'HypeWall - ' + page.title.replace('.', '');
 
         document.getElementById('infoKicker').textContent = page.kicker;
         document.getElementById('infoTitle').textContent = page.title;
@@ -316,9 +334,14 @@ const UIController = {
         window.scrollTo(0, 0);
     },
 
-    closeInfoPage: function() {
+    closeInfoPage: function(fromHistory) {
         if (this.elements.infoPage) this.elements.infoPage.style.display = 'none';
+        if (!fromHistory) {
+            history.pushState({}, '', window.location.pathname);
+        }
+        document.title = 'HypeWall - Create Aesthetic Appreciation Boards Online';
         this.showLandingPage();
+        window.scrollTo(0, 0);
     },
 
     // Show board page
@@ -367,8 +390,11 @@ const UIController = {
 
     // Show landing page
     showLandingPage: function() {
+        if (this.elements.infoPage) {
+            this.elements.infoPage.style.display = 'none';
+        }
         if (this.elements.landingPage) {
-            this.elements.landingPage.style.display = 'flex';
+            this.elements.landingPage.style.display = 'block';
         }
         
         // Hide other pages
@@ -397,6 +423,16 @@ window.openCreateModal = () => {
     UIController.openLibraryModal();
 };
 window.openInfoPage = (key) => UIController.openInfoPage(key);
+
+// Back / forward buttons move between the info pages and the landing page
+window.addEventListener('popstate', (e) => {
+    const key = (e.state && e.state.infoPage) || null;
+    if (key) {
+        UIController.openInfoPage(key, true);
+    } else {
+        UIController.closeInfoPage(true);
+    }
+});
 window.closeInfoPage = () => UIController.closeInfoPage();
 window.pickModalTheme = (aesthetic) => {
     if (typeof BoardController !== 'undefined') {

@@ -7,7 +7,8 @@
 :root {
     --ink: #111111;
     --paper: #f7f1e3;   /* warm cream */
-    --electric: #ffe600;   /* punchy yellow */
+    --electric: #e3a52f;   /* warm mustard gold */
+    --gold-deep: #c98a1c;  /* deeper mustard for edges */
     --cyan: #29c5f6;
     --magenta: #ff2e88;
     --violet: #8b5cf6;
@@ -23,7 +24,7 @@ body {
 .landing {
     background: transparent !important;
     min-height: auto !important;
-    display: block !important;
+    display: block;
     padding-top: 92px !important;
     padding-bottom: 0 !important;
 }
@@ -687,24 +688,26 @@ body {
 .info-page {
     display: none;
     min-height: 100vh;
-    background: var(--paper);
-    padding: 140px 2rem 4rem;
+    background: transparent;
+    padding: 118px 1.5rem 5rem;
     position: relative;
 }
 
+/* mustard banner strip across the top of every info page */
 .info-page::before {
     content: '';
     position: absolute;
-    top: 0;
+    top: 92px;
+    left: 0;
     right: 0;
-    width: 34%;
-    height: 150px;
-    background: var(--electric);
+    height: 8px;
+    background: linear-gradient(90deg, var(--electric), var(--gold-deep), var(--electric));
 }
 
 .info-content {
-    max-width: 760px;
+    max-width: 1040px;
     margin: 0 auto;
+    padding: 0 1rem;
     position: relative;
     z-index: 2;
 }
@@ -713,17 +716,49 @@ body {
 
 .info-title {
     text-align: left;
-    margin-bottom: 2rem !important;
+    margin-bottom: 2.25rem !important;
     font-size: clamp(2.4rem, 6vw, 4rem) !important;
 }
 
 .info-body p {
     font-family: 'Inter', sans-serif;
-    font-size: 1.05rem;
+    font-size: 1.12rem;
     line-height: 1.75;
-    color: #444;
-    margin-bottom: 1.2rem;
-    max-width: 620px;
+    color: #3c3730;
+    margin-bottom: 1.25rem;
+    max-width: 78ch;
 }
 
-.info-body strong { color: var(--ink); }
+.info-body strong { color: var(--ink); font-weight: 700; }
+.info-body em { font-style: italic; }
+
+/* big friendly email on the contact page */
+.contact-email {
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(1.1rem, 3.2vw, 1.9rem) !important;
+    margin: 2rem 0 1.5rem !important;
+}
+
+.contact-email a {
+    color: var(--ink);
+    text-decoration: none;
+    background: var(--electric);
+    padding: 0.5rem 1.1rem;
+    display: inline-block;
+    box-shadow: 5px 5px 0 var(--ink);
+    transition: all 0.2s;
+    word-break: break-all;
+}
+
+.contact-email a:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 8px 8px 0 var(--magenta);
+}
+
+.info-footnote {
+    font-size: 0.95rem !important;
+    color: #6b6459 !important;
+    border-left: 4px solid var(--electric);
+    padding-left: 1rem;
+    margin-top: 2rem !important;
+}
