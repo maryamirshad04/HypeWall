@@ -382,16 +382,48 @@ body {
 }
 
 .navbar .logo {
-    font-family: 'Kaushan Script', cursive !important;
-    font-size: 1.7rem !important;
-    font-weight: 400 !important;
-    letter-spacing: 0 !important;
-    background: none;
-    -webkit-background-clip: initial;
-    background-clip: initial;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    line-height: 1;
+}
+
+.logo-mark {
+    width: 40px;
+    height: 40px;
+    display: block;
+    flex: none;
+}
+
+.logo-words {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 0.82;
+}
+
+.logo-blk {
+    font-family: 'Archivo Black', 'Arial Black', sans-serif;
+    font-size: 1.02rem;
+    letter-spacing: -0.02em;
+    color: var(--ink);
     -webkit-text-fill-color: var(--ink);
-    color: var(--ink) !important;
-    text-transform: none;
+}
+
+.logo-scr {
+    font-family: 'Kaushan Script', cursive;
+    font-size: 1.2rem;
+    color: var(--electric);
+    -webkit-text-fill-color: var(--electric);
+    text-shadow: 2px 2px 0 var(--ink);
+    transform: rotate(-4deg);
+    margin-top: -0.04em;
+}
+
+@media (max-width: 520px) {
+    .logo-mark { width: 32px; height: 32px; }
+    .logo-blk { font-size: 0.88rem; }
+    .logo-scr { font-size: 1rem; }
 }
 
 .navbar .btn-library,
