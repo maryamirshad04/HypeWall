@@ -234,7 +234,16 @@ const UIController = {
     },
 
     // Open library modal
+    // Show which vibe the clicked tile picked (label only, not a chooser)
+    updateModalVibeLabel: function () {
+        const el = document.getElementById('modalThemeName');
+        if (!el) return;
+        const key = (typeof BoardController !== 'undefined' && BoardController.selectedAesthetic) || 'professional';
+        el.textContent = CONSTANTS.AESTHETIC_NAMES[key] || '';
+    },
+
     openLibraryModal: function () {
+        this.updateModalVibeLabel();
         if (this.elements.libraryModal) {
             this.elements.libraryModal.classList.add('active');
         }
