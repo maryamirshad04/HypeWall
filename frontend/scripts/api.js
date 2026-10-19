@@ -1,129 +1,38 @@
-// API Service
-const ApiService = {
-    API_URL: CONSTANTS.API_URL,
+// Thin wrappers around the backend routes. Every call throws an Error whose
+// `status` is the HTTP status (0 for network failures).
 
-    // Create a new board
-    createBoard: async function(aesthetic, recipientName) {
-        try {
-            const response = await fetch(`${this.API_URL}/boards`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    aesthetic: aesthetic, 
-                    recipient_name: recipientName 
-                })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('Error creating board:', error);
-            throw error;
-        }
-    },
+const API_URL = '/api';
 
-    // Join board by code
-    joinBoard: async function(code) {
-        try {
-            const response = await fetch(`${this.API_URL}/boards/code/${code.toUpperCase()}`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('Error joining board:', error);
-            throw error;
-        }
-    },
+async function request(path, options = {}) {
+  let response;
+  try {
+    response = await fetch(API_URL + path, {
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+    });
+  } catch {
+    const error = new Error('Could not reach HypeWall. Check your connection and try again.');
+    error.status = 0;
+    throw error;
+  }
 
-    // Get board by ID
-    getBoard: async function(boardId) {
-        try {
-            const response = await fetch(`${this.API_URL}/boards/${boardId}`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('Error getting board:', error);
-            throw error;
-        }
-    },
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    const error = new Error((body && body.error) || `Request failed (${response.status})`);
+    error.status = response.status;
+    throw error;
+  }
+  return body;
+}
 
-    // Get board by view token (for view page)
-    getBoardByViewToken: async function(viewToken) {
-        try {
-            const response = await fetch(`${this.API_URL}/boards/view/${viewToken}`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('Error getting board by view token:', error);
-            throw error;
-        }
-    },
+const post = (path, data) => request(path, { method: 'POST', body: JSON.stringify(data) });
 
-    // Add comment to board
-    addComment: async function(boardId, commentData) {
-        try {
-            const response = await fetch(`${this.API_URL}/boards/${boardId}/comments`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(commentData)
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('Error adding comment:', error);
-            throw error;
-        }
-    },
-
-    // Get all comments for a board
-    getComments: async function(boardId) {
-        try {
-            const response = await fetch(`${this.API_URL}/boards/${boardId}/comments`);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('Error getting comments:', error);
-            throw error;
-        }
-    },
-
-    // Delete a comment
-    deleteComment: async function(boardId, commentId) {
-        try {
-            const response = await fetch(`${this.API_URL}/boards/${boardId}/comments/${commentId}`, {
-                method: 'DELETE'
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('Error deleting comment:', error);
-            throw error;
-        }
-    }
+export const api = {
+  createBoard: (settings) => post('/boards', settings),
+  getBoard: (boardId) => request(`/boards/${encodeURIComponent(boardId)}`),
+  getBoardByCode: (code) => request(`/boards/code/${encodeURIComponent(code.toUpperCase())}`),
+  getBoardByViewToken: (token) => request(`/boards/view/${encodeURIComponent(token)}`),
+  getStats: (boardId) => request(`/boards/${encodeURIComponent(boardId)}/stats`),
+  getComments: (boardId) => request(`/boards/${encodeURIComponent(boardId)}/comments`),
+  addComment: (boardId, note) => post(`/boards/${encodeURIComponent(boardId)}/comments`, note),
 };
