@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const { v4: uuidv4 } = require('uuid');
+const { boardSettings, noteSettings, isLocked } = require('./validation');
 // Always read backend/.env, whatever directory the server was started from
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
@@ -65,6 +66,7 @@ app.post('/api/boards', async (req, res) => {
       recipient_name,
       bg_image,
       bg_audio,
+      ...boardSettings(req.body),
       join_code: generateCode(),
       view_token: uuidv4(),
       created_at: new Date().toISOString(),
@@ -93,6 +95,9 @@ app.get('/api/boards/code/:code', async (req, res) => {
       join_code: board.join_code,
       bg_image: board.bg_image || null,
       bg_audio: board.bg_audio || null,
+      occasion: board.occasion,
+      unlock_at: board.unlock_at || null,
+      allow_anonymous: board.allow_anonymous !== false,
     });
   } catch (err) {
     console.error(err);
@@ -107,6 +112,12 @@ app.get('/api/boards/view/:view_token', async (req, res) => {
     const database = await getDb();
     const board = await database.collection('boards').findOne({ view_token: req.params.view_token });
     if (!board) return res.status(404).json({ error: 'Board not found' });
+
+    // A board with a future unlock date keeps its notes secret until then
+    if (isLocked(board)) {
+      const comment_count = await database.collection('comments').countDocuments({ board_id: board.id });
+      return res.json({ ...board, comments: [], comment_count, locked: true });
+    }
 
     const comments = await database
       .collection('comments')
@@ -141,14 +152,20 @@ app.post('/api/boards/:board_id/comments', async (req, res) => {
     const board = await database.collection('boards').findOne({ id: req.params.board_id });
     if (!board) return res.status(404).json({ error: 'Board not found' });
 
+    const author = typeof req.body.author === 'string' ? req.body.author.trim() : '';
+    if (board.allow_anonymous === false && !author) {
+      return res.status(400).json({ error: 'This board needs a name on every note' });
+    }
+
     const comment = {
       id: uuidv4(),
       board_id: req.params.board_id,
-      author: req.body.author || 'Anonymous',
+      author: author || 'Anonymous',
       message: req.body.message || '',
       color: req.body.color || '#FFD700',
       gif: req.body.gif || null,     // optional GIF/image attachment (data URL or GIF link)
       audio: req.body.audio || null, // optional audio attachment (data URL)
+      ...noteSettings(req.body),
       created_at: new Date().toISOString(),
     };
 
@@ -174,6 +191,21 @@ app.get('/api/boards/:board_id/comments', async (req, res) => {
       .toArray();
 
     res.json(comments);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/boards/:board_id/stats  – note count without downloading any media
+app.get('/api/boards/:board_id/stats', async (req, res) => {
+  try {
+    const database = await getDb();
+    const board = await database.collection('boards').findOne({ id: req.params.board_id });
+    if (!board) return res.status(404).json({ error: 'Board not found' });
+
+    const comment_count = await database.collection('comments').countDocuments({ board_id: board.id });
+    res.json({ comment_count });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });

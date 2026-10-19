@@ -6,275 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="oYJPR199poyWo1iOrhL37nAkMxxz44GyPYbSpG3PuJE" />
     <meta name="description" content="HypeWall is a free customizable canvas to create aesthetic appreciation boards, share messages, and celebrate people in a unique way.">
+    <meta name="theme-color" content="#FFF6EC">
     <title>HypeWall – Create Aesthetic Appreciation Boards Online</title>
 
-    <!-- CSS Files -->
-    <link rel="icon" type="image/svg+xml" href="images/favicon.svg?v=13">
-    <link rel="apple-touch-icon" href="images/logo-mark.svg?v=13">
-    <link rel="stylesheet" href="styles/main.css">
-    <link rel="stylesheet" href="styles/components.css">
-    <link rel="stylesheet" href="styles/animations.css">
-    <link rel="stylesheet" href="styles/flash.css?v=13">
+    <link rel="icon" type="image/svg+xml" href="images/favicon.svg?v=20">
+    <link rel="apple-touch-icon" href="images/logo-mark.svg?v=20">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Kaushan+Script&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Caveat:wght@500;700&family=DM+Sans:wght@400;500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles/base.css?v=20">
+    <link rel="stylesheet" href="styles/backgrounds.css?v=20">
+    <link rel="stylesheet" href="styles/notes.css?v=20">
+    <link rel="stylesheet" href="styles/landing.css?v=20">
+    <link rel="stylesheet" href="styles/create.css?v=20">
+    <link rel="stylesheet" href="styles/share.css?v=20">
+    <link rel="stylesheet" href="styles/contribute.css?v=20">
+    <link rel="stylesheet" href="styles/reveal.css?v=20">
+    <link rel="stylesheet" href="styles/pages.css?v=20">
 </head>
 
 <body>
-    <div class="floating-overlay" id="floatingOverlay"></div>
+    <div id="app" aria-live="polite"></div>
+    <div id="toasts" class="toasts" aria-live="assertive"></div>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="logo">
-            <img class="logo-mark" src="images/logo-mark.svg?v=13" alt="" width="40" height="40">
-            <span class="logo-words">
-                <span class="logo-blk">HYPE</span>
-                <span class="logo-scr">wall.</span>
-            </span>
-        </div>
-        <div class="nav-buttons">
-            <button class="nav-link" onclick="openInfoPage('about')">About Us</button>
-            <button class="nav-link" onclick="openInfoPage('contact')">Contact Us</button>
-            <button class="nav-link" onclick="openInfoPage('privacy')">Privacy</button>
-        </div>
-    </nav>
+    <noscript>
+        <p style="padding: 2rem; font-family: sans-serif">HypeWall needs JavaScript to build your wall. Please turn it on and refresh.</p>
+    </noscript>
 
-    <!-- Landing Page -->
-    <section class="landing" id="landing">
-        <div class="floating-cards" id="floatingCards"></div>
-
-        <div class="landing-content">
-            <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
-            <p class="hero-kicker">appreciation boards · gifs · voice notes · music</p>
-            <h1 class="landing-title">
-                <span class="title-line">MAKE THEIR DAY</span>
-                <span class="title-line script-word">loud.</span>
-            </h1>
-            <p class="landing-sub">Build a board, pick a vibe, drop the link,
-                and let everyone flood it with love.</p>
-
-            <div class="cta-container">
-                <button class="cta-button cta-main" onclick="openCreateModal()">Create Your Vibe</button>
-                <button class="cta-secondary" onclick="openJoinModal()">I have a code →</button>
-
-                <!-- Floating Card Car Layout -->
-                <div class="floating-card-car" id="floatingCardCar">
-                    <!-- Car buttons will be populated by JS -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Vibe gallery grid -->
-        <div class="vibe-grid">
-            <div class="vibe-tile" onclick="selectAestheticFromCar('tech-neon')">
-                <img src="images/tech-neonbg.jpeg" alt="Tech Neon">
-                <span class="vibe-label">Tech<br>Neon</span>
-            </div>
-            <div class="vibe-tile" onclick="selectAestheticFromCar('cottage-core')">
-                <img src="images/cottage-corebg.jpeg" alt="Cottage Core">
-                <span class="vibe-label">Cottage<br>Core</span>
-            </div>
-            <div class="vibe-tile" onclick="selectAestheticFromCar('retro-90s')">
-                <img src="images/retro-90sbg.jpeg" alt="90s Retro">
-                <span class="vibe-label">90s<br>Retro</span>
-            </div>
-            <div class="vibe-tile" onclick="selectAestheticFromCar('dark-academia')">
-                <img src="images/dark-academiabg.jpeg" alt="Dark Academia">
-                <span class="vibe-label">Dark<br>Academia</span>
-            </div>
-            <div class="vibe-tile" onclick="selectAestheticFromCar('professional')">
-                <img src="images/professionalbg.jpeg" alt="Professional">
-                <span class="vibe-label">Clean<br>Minimal</span>
-            </div>
-            <div class="vibe-tile vibe-tile-custom" onclick="openCreateModal()">
-                <span class="vibe-label vibe-label-dark">Your<br>Vibe ✦</span>
-            </div>
-        </div>
-    </section>
-
-    <!-- Info Pages (About / Contact / Privacy) -->
-    <div class="info-page" id="infoPage">
-        <div class="info-content">
-            <button class="cta-secondary btn-back-info" onclick="closeInfoPage()">← Back</button>
-            <p class="hero-kicker" id="infoKicker"></p>
-            <h1 class="landing-title info-title"><span class="script-word script-static" id="infoTitle"></span></h1>
-            <div class="info-body" id="infoBody"></div>
-        </div>
-    </div>
-
-    <!-- Library Modal -->
-    <div class="modal" id="libraryModal">
-        <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
-                <h2>Create Your Board<span class="modal-vibe" id="modalThemeName"></span></h2>
-                <button class="close-modal" onclick="closeLibrary()">&times;</button>
-            </div>
-
-            <div class="form-group">
-                <label>Who is this for?</label>
-                <input type="text" id="recipientName" placeholder="Enter their name..." autofocus>
-            </div>
-
-            <div class="form-group">
-                <label>Custom background image <span class="optional-tag">optional, overrides the theme</span></label>
-                <label class="upload-drop" for="customBgInput">
-                    <span id="customBgLabel">🖼️ Upload an image</span>
-                </label>
-                <input type="file" id="customBgInput" accept="image/*" hidden>
-                <div class="upload-preview hidden" id="customBgPreview">
-                    <img id="customBgImg" alt="Background preview">
-                    <button type="button" class="remove-upload" onclick="clearCustomBg()">✕</button>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Board music <span class="optional-tag">optional, plays when the board is opened</span></label>
-                <label class="upload-drop" for="boardAudioInput">
-                    <span id="boardAudioLabel">🎵 Upload audio (mp3, m4a…)</span>
-                </label>
-                <input type="file" id="boardAudioInput" accept="audio/*" hidden>
-                <div class="upload-preview hidden" id="boardAudioPreview">
-                    <span class="audio-chip">🎵 <span id="boardAudioName"></span></span>
-                    <button type="button" class="remove-upload" onclick="clearBoardAudio()">✕</button>
-                </div>
-            </div>
-
-            <button class="create-button" onclick="createBoard()">Create Board</button>
-        </div>
-    </div>
-
-    <!-- Join Modal -->
-    <div class="modal" id="joinModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h2>Join Board</h2>
-                <button class="close-modal" onclick="closeJoinModal()">&times;</button>
-            </div>
-            <div class="form-group">
-                <label>Enter Code</label>
-                <input type="text" id="joinCode" placeholder="ABC123" style="text-transform: uppercase;">
-            </div>
-            <button class="create-button" onclick="joinBoard()">Join</button>
-        </div>
-    </div>
-
-    <!-- Board Page (Form and Links) -->
-    <div class="board-page" id="boardPage">
-        <div class="board-header">
-            <h1 id="boardTitle">Board for <span id="boardRecipientName"></span></h1>
-            <button class="btn-view-messages" onclick="navigateToViewPage()">
-                View Messages
-            </button>
-        </div>
-
-        <!-- Creator View - Shows links for board creator -->
-        <div class="share-section" id="creatorView">
-            <h3>Your Board is Ready!</h3>
-            <div class="share-links">
-                <div class="share-item">
-                    <h4>Share with Contributors</h4>
-                    <div class="link-display">
-                        <input type="text" id="contributorLink" readonly>
-                        <button class="copy-btn" onclick="copyLink('contributorLink')">Copy</button>
-                    </div>
-                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">Code: <strong id="boardCodeCreator">ABC123</strong></p>
-                </div>
-                <div class="share-item">
-                    <h4>View Messages Link</h4>
-                    <div class="link-display">
-                        <input type="text" id="viewLink" readonly>
-                        <button class="copy-btn" onclick="copyLink('viewLink')">Copy</button>
-                    </div>
-                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">Send this to see all messages</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contributor View - Shows only join code for contributors -->
-        <div id="joinSection" class="hidden">
-            <div class="share-section">
-                <h3>Your Join Information</h3>
-                <div class="share-item">
-                    <h4>Join Code</h4>
-                    <p id="boardCodeContributor">ABC123</p>
-                    <p class="help-text">Share this code with people who want to join</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="message-form">
-            <h3>Add Your Message</h3>
-            <div class="form-group">
-                <label>Your Name</label>
-                <input type="text" id="commentAuthor" placeholder="Anonymous">
-            </div>
-            <div class="form-group">
-                <label>Pick a Color</label>
-                <div class="color-picker-row">
-                    <div class="color-picker" id="colorPicker"></div>
-                    <label class="custom-color-wrap" title="Pick any color">
-                        <input type="color" id="customColorInput" value="#FFD700">
-                        <span>🎨 Custom</span>
-                    </label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Your Message</label>
-                <textarea id="commentMessage" placeholder="Say something nice..." rows="4"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Add media <span class="optional-tag">optional</span></label>
-                <div class="media-buttons">
-                    <label class="upload-drop small" for="commentGifInput">
-                        <span>🎞️ GIF / image</span>
-                    </label>
-                    <input type="file" id="commentGifInput" accept="image/*" hidden>
-                    <label class="upload-drop small" for="commentAudioInput">
-                        <span>🎙️ Audio</span>
-                    </label>
-                    <input type="file" id="commentAudioInput" accept="audio/*" hidden>
-                </div>
-                <div class="upload-preview hidden" id="commentGifPreview">
-                    <img id="commentGifImg" alt="GIF preview">
-                    <button type="button" class="remove-upload" onclick="clearCommentGif()">✕</button>
-                </div>
-                <div class="upload-preview hidden" id="commentAudioPreview">
-                    <span class="audio-chip">🎙️ <span id="commentAudioName"></span></span>
-                    <button type="button" class="remove-upload" onclick="clearCommentAudio()">✕</button>
-                </div>
-            </div>
-            <button class="create-button" onclick="postMessage()">Post Message</button>
-        </div>
-    </div>
-
-    <!-- View Page (Comments Only) -->
-    <div class="view-page" id="viewPage">
-        <div class="view-header">
-            <h1>Messages for <span id="viewRecipientName"></span></h1>
-            <p class="view-subtitle">All the love and appreciation in one place</p>
-            <button class="btn-back-to-board" onclick="returnToBoard()">← Back to Board</button>
-        </div>
-
-        <button class="music-toggle hidden" id="musicToggle" onclick="toggleBoardMusic()" title="Board music">🎵</button>
-
-        <div class="comments-container">
-            <div class="comments-grid" id="commentsGrid">
-                <!-- Comments will be loaded here -->
-            </div>
-
-            <div class="empty-state" id="emptyState">
-                <h3>No messages yet</h3>
-                <p>Be the first to send some love!</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- JavaScript Files -->
-    <script src="scripts/utils.js?v=13"></script>
-    <script src="scripts/api.js?v=13"></script>
-    <script src="scripts/ui.js?v=13"></script>
-    <script src="scripts/board.js?v=13"></script>
-    <script src="scripts/view.js?v=13"></script>
-    <script src="scripts/main.js?v=13"></script>
+    <script type="module" src="scripts/main.js?v=20"></script>
 </body>
 
 </html>
