@@ -24,5 +24,21 @@
 .link-field-dark input { color: var(--paper); }
 .share-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .unlock-note { margin: 18px 0 0; padding: 14px 16px; border-radius: 18px; background: var(--night-2); font-size: 15px; }
-.share-count { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; text-align: left; box-shadow: 8px 8px 0 var(--ink); }
-.count-title { font-weight: 800; font-size: 26px; }
+.share-count { margin-top: 24px; text-align: left; box-shadow: 8px 8px 0 var(--ink); }
+.share-count-head { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; justify-content: space-between; }
+.creator-card { margin-top: 24px; text-align: left; background: #FFF3C4; }
+
+/* moderation list */
+.mod-list { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; max-height: 520px; overflow-y: auto; }
+.mod-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 18px; border: 2px solid rgba(27, 19, 37, .12); background: var(--paper); }
+.mod-row.is-hidden { opacity: .6; border-style: dashed; }
+.mod-swatch { width: 18px; height: 40px; border-radius: 6px; flex: none; border: 1.5px solid rgba(27, 19, 37, .2); }
+.mod-text { flex: 1 1 260px; min-width: 0; }
+.mod-text p { margin: 2px 0 0; color: var(--ink-soft); overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mod-badge { margin-left: 8px; padding: 2px 8px; border-radius: 999px; background: var(--ink); color: var(--paper); font-size: 12px; font-weight: 700; }
+.mod-media { font-size: 13px; color: var(--ink-mute); }
+.mod-actions { display: flex; gap: 8px; }
+.mod-empty { padding: 18px; text-align: center; color: var(--ink-soft); }
+.mod-legacy { margin: 18px 0 0; color: var(--ink-soft); }
+.btn-danger { background: #A0153E; color: #fff; border-color: #A0153E; }
+.count-title { margin: 0; font-weight: 800; font-size: 26px; }

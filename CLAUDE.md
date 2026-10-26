@@ -26,7 +26,7 @@ Run locally: `cd backend && npm install && node index.js` with `backend/.env` co
 ## Compatibility rules (do not break)
 
 - Shared links live in group chats forever. These URL forms must keep working:
-  `?board=<id>` (creator share page), `?contribute=<id>`, `?code=<CODE>`, `?view=<view_token>`,
+  `?board=<id>[&key=<creator key>]` (creator share page), `?contribute=<id>`, `?code=<CODE>`, `?view=<view_token>`,
   `?page=about|contact|privacy`. Newer: `?page=create[&vibe=<id>]`, `?page=join`, `?page=demo`.
 - The backend keeps every original route and response field. New fields are **optional** and
   validated in `backend/validation.js`; unknown values fall back to defaults, and documents created
@@ -37,27 +37,46 @@ Run locally: `cd backend && npm install && node index.js` with `backend/.env` co
 
 ## Data model (MongoDB, db `genzkudo`)
 
-**boards**: `id`, `aesthetic` (vibe id), `recipient_name`, `bg_image`, `bg_audio`, `join_code`,
-`view_token`, `created_at`, `contributor_link`, `view_link`, plus optional settings
+**boards**: `id`, `aesthetic` (vibe id), `recipient_name` (max 60), `bg_image`, `bg_audio`,
+`join_code`, `view_token`, `created_at`, `contributor_link`, `view_link`, `creator_key_hash`
+(SHA-256 of the creator key; boards made before keys existed have none), plus optional settings
 `occasion`, `wrapper`, `reveal_style`, `bg_choice`, `music_track`, `unlock_at`, `allow_anonymous`.
 
-**comments**: `id`, `board_id`, `author`, `message`, `color`, `gif`, `audio`, `created_at`, plus
-optional `font`, `shape`, `stickers` (max 3).
+**comments**: `id`, `board_id`, `author` (max 60), `message` (max 1000), `color` (hex), `gif`,
+`audio`, `created_at`, optional `font`, `shape`, `stickers` (max 3), and `hidden` (moderation).
+
+**reports**: `id`, `board_id`, `comment_id`, `reason`, `created_at`.
+**rate_limits**: fixed-window counters with a TTL index on `expiresAt`.
+
+## Creator keys and access (backend/security.js)
+
+- `POST /boards` returns `creator_key` (plain, **only once**) and
+  `creator_link` = `/index.html?board=<id>&key=<key>`. Only the hash is stored.
+- Clients send the key as the `X-Creator-Key` header. The frontend keeps it in the creator link
+  and in localStorage (`hypewall:creator:<boardId>`, see `lib/creatorKeys.js`).
+- `creatorAccess(board, req)` → `canRead` (valid key, or a legacy board with no hash) and
+  `canModerate` (valid key only). Legacy boards keep their old open reads but cannot be moderated.
+- Contributors never get `view_token`/`view_link` from `GET /boards/:id` (that was the peeking hole).
 
 ## API (`/api`)
 
-| Method | Route | Notes |
+| Method | Route | Access / notes |
 | --- | --- | --- |
-| POST | `/boards` | create; settings whitelisted by `boardSettings()` |
+| POST | `/boards` | rate limited (10/hour/IP), honeypot; returns `creator_key` once |
 | GET | `/boards/code/:code` | public fields only (never `view_token`) |
-| GET | `/boards/view/:view_token` | board + comments; if `unlock_at` is in the future returns `comments: []`, `comment_count`, `locked: true` |
-| GET | `/boards/:board_id` | full board |
-| GET | `/boards/:board_id/stats` | `{ comment_count }` without media |
-| POST | `/boards/:board_id/comments` | 400 if the board disallows anonymous and no name |
-| GET | `/boards/:board_id/comments` | oldest first |
-| DELETE | `/boards/:board_id/comments/:comment_id` | unused by the UI, no auth |
+| GET | `/boards/view/:view_token` | recipient wall; hidden notes left out; locked walls return `comments: []`, `comment_count`, `locked: true` |
+| GET | `/boards/:board_id` | everyone; `view_token` only for creators; adds `is_creator`, `can_moderate` |
+| GET | `/boards/:board_id/stats` | everyone; `{ comment_count }` of visible notes |
+| POST | `/boards/:board_id/comments` | rate limited (20/10 min/IP), honeypot, 1000-char cap, 300 notes per wall (409) |
+| GET | `/boards/:board_id/comments` | creator only (403 otherwise); includes hidden notes |
+| PATCH | `/boards/:board_id/comments/:comment_id` | moderator only; body `{ hidden: boolean }` |
+| DELETE | `/boards/:board_id/comments/:comment_id` | moderator only |
+| POST | `/reports` | `{ view_token, comment_id, reason? }`; hides the note and logs a report; 10/hour/IP |
 
 Route order matters: `/boards/view/:token` and `/boards/code/:code` must stay above `/boards/:id`.
+Rate limits fail open (a counter error never blocks users). Client IP comes from
+`x-vercel-forwarded-for` / `x-real-ip` / `x-forwarded-for`. Every form includes the hidden
+`website` honeypot field (`components/honeypot.js`); a filled value gets a 400.
 
 ## Frontend layout (`frontend/`)
 
@@ -74,7 +93,8 @@ scripts/
   lib/music.js             createMusic({src|trackId}); library tracks are synthesised (Web Audio)
   lib/recorder.js          MediaRecorder voice notes (60 s max)
   lib/toast.js             non-blocking messages (no alert())
-  components/              nav, note card + voice player, wrapper SVGs, reveal demo stages
+  lib/creatorKeys.js       remembers creator keys per board in localStorage
+  components/              nav, note card + voice player, wrapper SVGs, reveal demo stages, honeypot
   views/                   landing, info, join, create, share, contribute, reveal (+ reveal-demo data), shared
 styles/                    base (tokens, buttons, nav), backgrounds, notes, one file per view
 images/                    original artwork: <vibe>.jpeg sketches, <vibe>bg.jpeg paintings
@@ -105,4 +125,5 @@ On phones (<=700px) it defaults to a one-note-at-a-time deck.
 - GIF search needs a provider key (Giphy/Tenor); for now people upload a GIF or photo.
 - Library music is generated tunes, not recorded songs; uploads still work.
 - The logo (`components/nav.js`, `images/favicon.svg`) is tentative.
-- No auth on delete; contributors can technically fetch all notes via the API (as before).
+- Boards made before creator keys cannot be moderated, and their notes stay readable by anyone
+  with the board id (as they always were).

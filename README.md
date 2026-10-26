@@ -1,87 +1,73 @@
 # HypeWall 🎉
 
-**HypeWall** is a free, modern, and aesthetic appreciation board built with pure Gen-Z energy. Create beautiful boards, choose a vibe, and let people leave heartfelt messages — all without paywalls or boring templates.
+**HypeWall** is a free appreciation wall. Make one for someone's birthday, farewell, promotion or
+graduation, send the link to their people, and let everyone drop a note, a GIF, a photo or a voice
+memo. When the day comes, they unwrap it and every note comes flying onto the wall, set to a song.
 
-This project is about celebrating people **with style**.
-
----
-
-## ✨ Features
-
-### 🎨 Aesthetic Themes
-
-Choose a vibe that matches the moment:
-
-* 💼 **Professional Minimalist**
-* 📚 **Dark Academia**
-* 🌸 **Cottage Core**
-* ⚡ **Cyber Punk**
-* 🎨 **90s Retro**
-
-### 🔗 Two-Link System
-
-Each board comes with two separate links:
-
-* **Contributor Link** — share this with people so they can add messages
-* **View Link** — a private link for the recipient to view and download all messages
-
-### 🔐 Join Code System
-
-* Google Classroom-style **6-character join codes**
-* Anyone with the code can join and post messages
-
-### ⚡ Real-Time Updates
-
-* Messages refresh automatically every **5 seconds**
-* No page reloads needed
+No accounts. No paywall. No checkout page. Appreciation should not cost anything.
 
 ---
 
-## 🎯 How It Works
+## ✨ What it does
 
-### Creating a Board
+### Make a wall
+- Pick who it's for and the occasion
+- Pick a **vibe**: Cottage Core, Dark Academia, 90s Retro, Tech Neon, Clean Minimal (each with
+  original hand-painted art and sketches), or Sunset Party and Y2K Bubble, plus your own photo
+- Pick a **soundtrack** from the built-in tunes, or upload your own
+- Pick how the notes land: **Solitaire Cascade, Deal 'Em Out, Paparazzi Flash, Confetti Rain,
+  Love Letter or Polaroid Develop**
+- Pick how they unwrap it: **gift box, envelope, mailbox or birthday cake**
+- Optional: keep it secret until a date (with a countdown), and require names on notes
 
-1. Click **"Create Your Vibe"** or open **Library**
-2. Choose an aesthetic theme
-3. Enter the recipient’s name
-4. Click **Create**
-5. You’ll receive:
+### Share it
+- **Invite link + 6-character join code** for contributors (they can write, but not peek)
+- **Reveal link** for the recipient
+- **Private creator link** for you, to come back, see notes and hide or delete anything before the reveal
 
-   * a **Contributor Link** to share
-   * a **View Link** to keep private
+### Write a note
+Handwriting style, note colour, note shape, stickers, a GIF or photo, and voice notes recorded
+right in the browser.
 
-### Joining a Board
-
-1. Click **"Join with Code"** in the navbar
-2. Enter the 6-character code
-3. Start adding messages instantly
-
-### Adding Messages
-
-* Enter your name (or stay anonymous)
-* Pick a color that matches the vibe
-* Write your message
-* Click **Post Message**
-
----
-
-## 💻 Technology Stack
-
-* **Backend:** Python (Flask)
-* **Frontend:** Vanilla JavaScript, HTML5, CSS3
+### The reveal
+The recipient unwraps the wall, the music fades in and the notes animate in. They can replay it in
+any style, read any note up close, report a note (which hides it right away), and new notes appear
+live. On phones it becomes a one-note-at-a-time deck.
 
 ---
 
-## 🌱 Vision
+## 💻 Tech stack
 
-HypeWall is built to be:
+- **Frontend:** vanilla HTML, CSS and JavaScript (native ES modules, no build step)
+- **Backend:** Node.js + Express
+- **Database:** MongoDB
+- **Hosting:** Vercel
 
-* **Free forever**
-* **Aesthetic-first**
-* **Fun, personal, and expressive**
+## 🛠 Running locally
 
-No corporate energy. No locked features. Just genuine appreciation, done right.
+```bash
+cd backend
+npm install
+node index.js
+```
+
+Create `backend/.env` first:
+
+```
+MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/genzkudo
+```
+
+Then open http://localhost:5000. The same server serves the site and the API.
+
+## 🔐 Safety and privacy
+
+- Only the creator's private link can see notes before the reveal, or hide and delete them.
+  The key in that link is stored hashed.
+- Contributors only ever see the note count.
+- Rate limits on making walls, posting notes and reporting, a 1000-character limit on notes,
+  a 300-note cap per wall, and a hidden spam trap on every form.
+- No accounts, no tracking, no ads. See the Privacy page in the app.
 
 ---
 
-✨ Built with love for vibes, words, and people.
+✨ Made over one very chaotic winter break by Vaniya and Maryam.

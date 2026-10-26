@@ -159,3 +159,4 @@ textarea.input { resize: vertical; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition: none !important; scroll-behavior: auto !important; }
 }
 .word { display: inline-block; white-space: nowrap; }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }

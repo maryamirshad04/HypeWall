@@ -5,6 +5,7 @@ import { $, $$, esc, on } from '../lib/dom.js';
 import { imageToDataUrl, audioToDataUrl, totalTooLarge } from '../lib/media.js';
 import { canRecord, startRecording, MAX_SECONDS } from '../lib/recorder.js';
 import { toast } from '../lib/toast.js';
+import { honeypotField, honeypotValue } from '../components/honeypot.js';
 import { NOTE_COLORS, NOTE_FONTS, NOTE_SHAPES, STICKERS, MAX_STICKERS, backgroundClass, findOccasion } from '../config/catalog.js';
 import { renderError } from './shared.js';
 
@@ -41,6 +42,7 @@ export async function render(root, { boardId }, scope) {
 
         <div class="contribute-layout">
           <form class="contribute-form" novalidate>
+            ${honeypotField}
             <section class="card">
               <label class="field-label" for="noteMessage">Your message</label>
               <textarea id="noteMessage" class="input note-input" rows="4" maxlength="1000" placeholder="happy birthday to the funniest person in every room..."></textarea>
@@ -229,7 +231,7 @@ export async function render(root, { boardId }, scope) {
     const post = slot('post');
     post.disabled = true;
     try {
-      await api.addComment(board.id, { ...note, author: note.author || 'Anonymous' });
+      await api.addComment(board.id, { ...note, author: note.author || 'Anonymous', website: honeypotValue(event.target) });
       $('.preview-tilt', root)?.classList.add('fly-away');
       scope.timeout(showSent, 900);
     } catch (error) {

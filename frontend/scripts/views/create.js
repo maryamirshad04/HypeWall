@@ -7,6 +7,8 @@ import { $, $$, esc, on } from '../lib/dom.js';
 import { imageToDataUrl, audioToDataUrl, totalTooLarge } from '../lib/media.js';
 import { createMusic } from '../lib/music.js';
 import { toast } from '../lib/toast.js';
+import { rememberKey } from '../lib/creatorKeys.js';
+import { honeypotField, honeypotValue } from '../components/honeypot.js';
 import { OCCASIONS, VIBES, TRACKS, REVEAL_STYLES, WRAPPERS, findVibe, findOccasion, findReveal, findWrapper, findTrack, backgroundClass } from '../config/catalog.js';
 
 const PLAY = '<svg width="14" height="16" viewBox="0 0 12 14" aria-hidden="true"><path d="M1 1l10 6-10 6z" fill="currentColor"/></svg>';
@@ -74,6 +76,7 @@ export function render(root, params, scope) {
         <p class="lead" style="margin:8px 0 40px">Takes about a minute.</p>
         <div class="create-layout">
           <form class="create-form" novalidate>
+            ${honeypotField}
             ${step(1, 's-who', "who's the star?", '', `
               <label class="field-label" for="recipient">Their name</label>
               <input id="recipient" class="input input-lg" maxlength="60" placeholder="e.g. Amna" autocomplete="off" required>
@@ -283,9 +286,11 @@ export function render(root, params, scope) {
         music_track: TRACKS.some((t) => t.id === state.track) ? state.track : null,
         unlock_at: state.lock ? new Date(state.unlockAt).toISOString() : null,
         allow_anonymous: state.anonymous,
+        website: honeypotValue(form),
       });
+      rememberKey(board.id, board.creator_key);
       toast('Wall created!', 'success');
-      navigate(`?board=${encodeURIComponent(board.id)}`);
+      navigate(`?board=${encodeURIComponent(board.id)}&key=${encodeURIComponent(board.creator_key)}`);
     } catch (error) {
       toast(error.message, 'error');
       submit.disabled = false;

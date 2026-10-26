@@ -15,6 +15,20 @@ const OPTIONS = {
 
 const MAX_STICKERS = 3;
 
+// Size caps for free text, and how many notes one wall can hold
+const TEXT_LIMITS = { recipient: 60, author: 60, message: 1000, reason: 300 };
+const MAX_NOTES_PER_BOARD = 300;
+
+// Trim and cut a string to `max` characters; anything that is not a string becomes ''
+function cleanText(value, max) {
+  return typeof value === 'string' ? value.trim().slice(0, max) : '';
+}
+
+// Note colours are hex values like #FFE066; anything else gets the default
+function cleanColor(value) {
+  return typeof value === 'string' && /^#[0-9a-f]{3,8}$/i.test(value) ? value : '#FFD700';
+}
+
 function pick(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
 }
@@ -53,4 +67,4 @@ function isLocked(board, now = new Date()) {
   return Boolean(board.unlock_at) && new Date(board.unlock_at) > now;
 }
 
-module.exports = { OPTIONS, boardSettings, noteSettings, isLocked };
+module.exports = { OPTIONS, TEXT_LIMITS, MAX_NOTES_PER_BOARD, boardSettings, noteSettings, isLocked, cleanText, cleanColor };

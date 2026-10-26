@@ -7,6 +7,7 @@ import { $, $$, esc, on, prefersReducedMotion } from '../lib/dom.js';
 import { createMusic } from '../lib/music.js';
 import { REVEAL_STYLES, backgroundClass, findOccasion, findWrapper, findTrack } from '../config/catalog.js';
 import { renderError } from './shared.js';
+import { toast } from '../lib/toast.js';
 import { DEMO_BOARD } from './reveal-demo.js';
 
 const OPEN_MS = 2300;          // wrapper opening animation before the wall
@@ -205,14 +206,14 @@ export async function render(root, { token, demo }, scope) {
     </div>`;
   }
 
-  function renderGrid() {
+  function renderGrid({ animate = true } = {}) {
     if (!state.notes.length) {
       grid.innerHTML = '<div class="wall-empty"><p class="hand">no notes yet</p><p>Check back soon. Your people are still writing.</p></div>';
       slot('stamp').classList.add('hidden');
       return;
     }
     grid.innerHTML = state.notes.map(slotHTML).join('');
-    animateSlots($$('.slot', grid));
+    if (animate) animateSlots($$('.slot', grid));
   }
 
   // Positions each note's starting point (the "deck") and staggers the entrances
@@ -304,11 +305,40 @@ export async function render(root, { token, demo }, scope) {
     const note = state.notes[index];
     if (!note) return;
     const focus = slot('focus');
-    focus.innerHTML = `<div class="focus-card">${noteCard(note, { className: 'note-big', index })}<button type="button" class="focus-close" data-close aria-label="Close note">${ICONS.close}</button></div>`;
+    focus.innerHTML = `
+      <div class="focus-card">
+        ${noteCard(note, { className: 'note-big', index })}
+        <button type="button" class="focus-close" data-close aria-label="Close note">${ICONS.close}</button>
+      </div>
+      <button type="button" class="report-btn" data-report="${index}">Report this note</button>`;
     focus.classList.remove('hidden');
     $('[data-close]', focus).focus();
   }
   const closeFocus = () => { stopAllAudio(); slot('focus').classList.add('hidden'); slot('focus').innerHTML = ''; };
+
+  // Reporting hides the note from this wall right away and flags it for us.
+  // The first tap arms the button so a stray tap never removes a note.
+  async function reportNote(btn) {
+    if (!btn.dataset.confirming) {
+      btn.dataset.confirming = 'true';
+      btn.textContent = 'Tap again to report and hide it';
+      return;
+    }
+    const index = Number(btn.dataset.report);
+    const note = state.notes[index];
+    btn.disabled = true;
+    try {
+      if (!demo) await api.reportNote(token, note.id);
+      state.notes.splice(index, 1);
+      closeFocus();
+      if (state.layout === 'deck') renderDeck('');
+      else renderGrid({ animate: false });
+      toast(demo ? 'This is a demo, but that is exactly how reporting works.' : 'Thanks for telling us. That note is gone from your wall.', 'success');
+    } catch (error) {
+      toast(error.message, 'error');
+      btn.disabled = false;
+    }
+  }
 
   // ── live updates ─────────────────────────────────────────
   async function poll() {
@@ -351,6 +381,7 @@ export async function render(root, { token, demo }, scope) {
     if (event.target.closest('button, a')) return; // voice + expand buttons handle themselves
     openFocus(Number(note.dataset.noteIndex));
   }));
+  scope.add(on(root, 'click', '[data-report]', (event, btn) => reportNote(btn)));
   scope.add(on(root, 'click', '[data-slot="focus"]', (event) => {
     if (event.target.closest('[data-close]') || event.target === slot('focus')) closeFocus();
   }));

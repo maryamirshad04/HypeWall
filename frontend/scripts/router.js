@@ -1,6 +1,6 @@
 // Query-string router. The URL formats are part of the public contract
 // (shared links live in group chats), so every legacy form keeps working:
-//   ?board=<id>        creator share page
+//   ?board=<id>[&key=] creator share page (key = private creator key)
 //   ?contribute=<id>   write a note
 //   ?code=<CODE>       join with a code
 //   ?view=<token>      the recipient's reveal
@@ -13,7 +13,7 @@ const INFO_PAGES = ['about', 'contact', 'privacy'];
 export function resolve(search) {
   const q = new URLSearchParams(search);
   if (q.get('view')) return { view: 'reveal', params: { token: q.get('view') } };
-  if (q.get('board')) return { view: 'share', params: { boardId: q.get('board') } };
+  if (q.get('board')) return { view: 'share', params: { boardId: q.get('board'), key: q.get('key') } };
   if (q.get('contribute')) return { view: 'contribute', params: { boardId: q.get('contribute') } };
   if (q.get('code')) return { view: 'join', params: { code: q.get('code') } };
 
