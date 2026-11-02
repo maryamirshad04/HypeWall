@@ -34,34 +34,27 @@ function clientIp(req) {
 }
 
 // ─── Rate limits ──────────────────────────────────────────────────────────────
-// Fixed-window counters stored in MongoDB so they hold across serverless
-// instances. Counter documents expire on their own via a TTL index.
+// Fixed-window counters kept in the database so they hold across serverless
+// instances (store.rateLimits.hit -> the hit_rate_limit SQL function).
 
 const LIMITS = {
   createBoard: { limit: 10, windowSec: 60 * 60, message: 'You have made a lot of walls this hour. Take a breather and try again soon.' },
   postNote: { limit: 20, windowSec: 10 * 60, message: 'Whoa, that is a lot of notes. Give it a few minutes and try again.' },
+  upload: { limit: 40, windowSec: 10 * 60, message: 'That is a lot of uploads. Give it a few minutes and try again.' },
   report: { limit: 10, windowSec: 60 * 60, message: 'Too many reports from you right now. Try again later.' },
   moderate: { limit: 120, windowSec: 60, message: 'Slow down a little and try again.' },
 };
 
-async function ensureIndexes(db) {
-  await db.collection('rate_limits').createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 });
-}
-
-// getDb: () => Promise<Db>. Fails open: a counter outage never blocks real users.
-function rateLimit(getDb, name) {
+// Fails open: a counter outage never blocks real users.
+function rateLimit(store, name) {
   const { limit, windowSec, message } = LIMITS[name];
   return async (req, res, next) => {
     try {
       const windowMs = windowSec * 1000;
       const windowStart = Math.floor(Date.now() / windowMs) * windowMs;
-      const db = await getDb();
-      const counter = await db.collection('rate_limits').findOneAndUpdate(
-        { _id: `${name}:${hashKey(clientIp(req))}:${windowStart}` },
-        { $inc: { count: 1 }, $setOnInsert: { expiresAt: new Date(windowStart + windowMs * 2) } },
-        { upsert: true, returnDocument: 'after' },
-      );
-      if (counter && counter.count > limit) {
+      const key = `${name}:${hashKey(clientIp(req))}:${windowStart}`;
+      const count = await store.rateLimits.hit(key, new Date(windowStart + windowMs));
+      if (count > limit) {
         res.set('Retry-After', String(Math.ceil((windowStart + windowMs - Date.now()) / 1000)));
         return res.status(429).json({ error: message });
       }
@@ -79,4 +72,4 @@ function isBot(body = {}) {
   return typeof body.website === 'string' && body.website.trim() !== '';
 }
 
-module.exports = { CREATOR_KEY_HEADER, newCreatorKey, hashKey, creatorAccess, clientIp, rateLimit, ensureIndexes, isBot, LIMITS };
+module.exports = { CREATOR_KEY_HEADER, newCreatorKey, hashKey, creatorAccess, clientIp, rateLimit, isBot, LIMITS };
