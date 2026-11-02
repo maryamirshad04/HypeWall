@@ -1,0 +1,49 @@
+/* ═══ Info pages ═══ */
+.info { max-width: 900px; margin: 0 auto; padding: 40px 24px 110px; }
+.info-kicker { margin: 0; font-size: 32px; color: var(--pop-deep); }
+.info-title { margin: 0 0 48px; font-family: var(--display); font-weight: 800; font-size: clamp(56px, 10vw, 140px); letter-spacing: -0.06em; line-height: .85; }
+.info-body { max-width: 720px; display: flex; flex-direction: column; gap: 26px; font-size: 21px; line-height: 1.65; color: var(--night-2); }
+.info-body p { margin: 0; }
+.drop-cap { float: left; margin: 8px 12px 0 0; font-family: var(--display); font-weight: 800; font-size: 92px; line-height: .8; color: var(--pop); }
+.para-big { margin: 8px 0 !important; font-family: var(--display); font-weight: 800; font-size: clamp(36px, 5vw, 56px); line-height: 1; letter-spacing: -0.04em; color: var(--ink); }
+.para-end { padding-top: 28px; border-top: 2px solid var(--ink); font-size: 26px; line-height: 1.45; font-weight: 500; color: var(--ink); }
+.mark { font-weight: 700; color: var(--ink); background-image: linear-gradient(transparent 58%, var(--sun) 58%, var(--sun) 92%, transparent 92%); }
+.footnote { font-size: 16px; color: var(--ink-mute); }
+.mail { font-family: var(--display); font-weight: 800; font-size: clamp(28px, 4.5vw, 52px); letter-spacing: -0.04em; color: var(--ink); text-decoration: none; background-image: linear-gradient(var(--sun), var(--sun)); background-repeat: no-repeat; background-size: 100% 30%; background-position: 0 88%; transition: background-size .3s; }
+.mail:hover { color: var(--ink); background-size: 100% 88%; }
+.info-tabs { display: flex; gap: 4px; padding: 5px; border-radius: 999px; background: #fff; border: 1.5px solid rgba(27, 19, 37, .14); }
+.info-tab { padding: 10px 18px; border-radius: 999px; font-weight: 700; text-decoration: none; }
+.info-tab[aria-current="page"] { background: var(--ink); color: var(--paper); }
+.para { animation: para-in .7s ease both; }
+@keyframes para-in { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@supports (animation-timeline: view()) { .para { animation-timeline: view(); animation-range: entry 0% cover 22%; } }
+
+/* ═══ Join ═══ */
+.join-page { position: relative; background-color: #B8E1FF; }
+.join { position: relative; max-width: 720px; margin: 0 auto; padding: 60px 24px 80px; text-align: center; }
+.join-floaty { position: absolute; box-shadow: 0 16px 30px -12px rgba(27, 19, 37, .4); animation: float 7s ease-in-out infinite; }
+@media (max-width: 900px) { .join-floaty { display: none; } }
+.code-boxes { position: relative; display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 48px 0 16px; }
+.code-box {
+  width: clamp(44px, 12vw, 72px); height: clamp(56px, 14vw, 88px); display: grid; place-items: center;
+  border-radius: 18px; border: 2.5px solid var(--ink); background: #fff;
+  font-family: var(--display); font-weight: 800; font-size: clamp(28px, 7vw, 44px);
+  transition: transform .2s var(--spring), background .2s;
+}
+.code-box.full { background: #FFE066; transform: translateY(-6px) rotate(-3deg); box-shadow: 0 6px 0 var(--ink); }
+.code-box.current { border-color: var(--pop); box-shadow: 0 0 0 4px rgba(255, 61, 127, .25); }
+.code-box.ok { background: var(--mint); animation: hop .5s var(--spring) both; }
+@keyframes hop { 40% { transform: translateY(-18px) rotate(6deg); } }
+.code-input { position: absolute; inset: 0; width: 100%; opacity: 0; font-size: 40px; cursor: text; }
+.code-boxes:focus-within .code-box.current { outline: 3px solid var(--sun); outline-offset: 2px; }
+.join-help { margin: 0; color: #2E4A66; font-weight: 500; }
+.join-error { margin: 32px 0 0; font-weight: 700; color: #A0153E; }
+.found {
+  margin: 40px auto 0; max-width: 540px; display: flex; flex-wrap: wrap; gap: 18px; align-items: center; text-align: left;
+  padding: 24px; background: #fff; border: 2px solid var(--ink); border-radius: 28px; box-shadow: 8px 8px 0 var(--ink);
+  animation: found-in .7s cubic-bezier(.2, 1.5, .4, 1) both;
+}
+@keyframes found-in { from { transform: translateY(40px) scale(.9); opacity: 0; } to { transform: none; opacity: 1; } }
+.found-thumb { width: 72px; height: 72px; flex: none; border-radius: 18px; border: 2px solid var(--ink); }
+.found-label { font-size: 13px; font-weight: 700; color: #1A7F55; }
+.found-name { font-weight: 800; font-size: 24px; letter-spacing: -0.03em; }

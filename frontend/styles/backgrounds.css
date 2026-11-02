@@ -1,0 +1,34 @@
+/* Wall backgrounds: .bg-<vibe>-<choice>. Paintings and sketches are the
+   original HypeWall artwork in /images. Keep in sync with config/catalog.js. */
+.wallpaper { background-size: cover; background-position: center; background-repeat: no-repeat; }
+
+.bg-cottage-core-paint { background-image: url(../images/cottage-corebg.jpeg); }
+.bg-cottage-core-sketch { background: #E3EDD3 url(../images/cottage-core.jpeg) no-repeat right 6% bottom 6% / min(48%, 520px); background-blend-mode: multiply; }
+.bg-cottage-core-pattern { background: radial-gradient(circle at 20% 30%, #fff 0 6px, transparent 7px), radial-gradient(circle at 70% 60%, #FFB3C7 0 8px, transparent 9px), #C9E4B4; background-size: 64px 64px; }
+.bg-cottage-core-solid { background: linear-gradient(160deg, #C9E4B4, #7FA866); }
+
+.bg-dark-academia-paint { background-image: url(../images/dark-academiabg.jpeg); }
+.bg-dark-academia-sketch { background: #EADBC0 url(../images/dark-academia.jpeg) no-repeat right 6% bottom 6% / min(50%, 540px); background-blend-mode: multiply; }
+.bg-dark-academia-pattern { background: radial-gradient(circle at 70% 20%, rgba(255, 190, 90, .45), transparent 40%), linear-gradient(180deg, #3B2A1E, #1E140D); }
+.bg-dark-academia-solid { background: #5A4632; }
+
+.bg-retro-90s-paint { background-image: url(../images/retro-90sbg.jpeg); }
+.bg-retro-90s-sketch { background: #FFC2D4 url(../images/retro-90s.jpeg) no-repeat right 6% bottom 6% / min(46%, 500px); background-blend-mode: multiply; }
+.bg-retro-90s-pattern { background: conic-gradient(var(--ink) 25%, #FFE066 0 50%, var(--ink) 0 75%, #FFE066 0) 0 0 / 52px 52px; }
+.bg-retro-90s-solid { background: radial-gradient(circle at 30% 20%, #FFC93C, #FF7A59 55%, #FF3D7F); }
+
+.bg-tech-neon-paint { background-image: url(../images/tech-neonbg.jpeg); }
+.bg-tech-neon-sketch { background: #BFF5E6 url(../images/tech-neon.jpeg) no-repeat right 6% bottom 0 / min(50%, 540px); background-blend-mode: multiply; }
+.bg-tech-neon-pattern { background-color: #0B0A1F; background-image: linear-gradient(rgba(0, 255, 200, .22) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 200, .22) 1px, transparent 1px); background-size: 24px 24px; background-repeat: repeat; }
+.bg-tech-neon-solid { background: linear-gradient(160deg, #1A1446, #0B0A1F); }
+
+.bg-professional-paint { background-image: url(../images/professionalbg.jpeg); }
+.bg-professional-sketch { background: #fff url(../images/professional.jpeg) no-repeat right 6% bottom 6% / min(50%, 540px); background-blend-mode: multiply; }
+.bg-professional-pattern { background: #F4F4F1; }
+.bg-professional-solid { background: linear-gradient(160deg, #EEF1F5, #D9DEE6); }
+
+.bg-sunset-party-solid { background: radial-gradient(circle at 30% 20%, #FFC93C, #FF7A59 55%, #FF3D7F); }
+.bg-sunset-party-pattern { background: radial-gradient(circle at 15% 25%, #5B8CFF 0 4px, transparent 5px), radial-gradient(circle at 60% 70%, #3DDC97 0 5px, transparent 6px), radial-gradient(circle at 85% 30%, #fff 0 4px, transparent 5px), #FF3D7F; background-size: 70px 70px; }
+
+.bg-y2k-bubble-solid { background: linear-gradient(135deg, #B8E1FF, #E3D1FF 50%, #FFB3C7); }
+.bg-y2k-bubble-pattern { background: radial-gradient(circle, rgba(255, 255, 255, .75) 0 10px, transparent 11px) 0 0 / 48px 48px, linear-gradient(135deg, #B8E1FF, #E3D1FF 50%, #FFB3C7); }
