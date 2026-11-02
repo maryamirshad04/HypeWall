@@ -22,6 +22,8 @@ const STYLE = {
   polaroid: { stagger: 0.36, duration: 2.6 },
 };
 const ROTATIONS = [-5, 4, -2, 6, -4, 3, -6, 2, 5, -3, 4, -5];
+// Makes a link safe inside url('...') within a double-quoted style attribute
+const cssUrl = (url) => String(url).replace(/["'()\\\s<>]/g, (ch) => `%${ch.charCodeAt(0).toString(16).padStart(2, '0')}`);
 const isPhone = () => window.matchMedia('(max-width: 700px)').matches;
 
 const ICONS = {
@@ -75,7 +77,7 @@ export async function render(root, { token, demo }, scope) {
   scope.add(stopAllAudio);
 
   const wallpaper = board.bg_image
-    ? { cls: 'wallpaper', style: `background-image:url("${board.bg_image.replace(/"/g, '%22')}")` }
+    ? { cls: 'wallpaper', style: `background-image:url('${cssUrl(board.bg_image)}')` }
     : { cls: `wallpaper ${backgroundClass(board.aesthetic, board.bg_choice)}`, style: '' };
 
   root.innerHTML = `
