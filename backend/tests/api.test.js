@@ -1,5 +1,7 @@
 // End-to-end API checks. Run through `npm test` (tests/run.js starts the server).
 const base = 'http://localhost:' + (process.argv[2] || 5000);
+// Test-only hooks exist on the in-memory server (npm test); against a real database they are skipped
+const HOOKS = process.env.HYPEWALL_TEST_HOOKS === '1';
 let failed = 0;
 let ipCounter = 0;
 const ok = (cond, msg) => { console.log((cond ? 'PASS ' : 'FAIL ') + msg); if (!cond) failed++; };
@@ -45,12 +47,12 @@ const WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACA
   ok(slot.status === 201 && slot.json.upload_url && slot.json.public_url, 'upload slot issued');
   const put = await fetch(slot.json.upload_url, { method: 'PUT', headers: { 'Content-Type': 'audio/webm' }, body: Buffer.from('abcd') });
   ok(put.ok, 'file uploads to the signed URL');
-  ok((await fetch(slot.json.upload_url, { method: 'PUT', body: Buffer.from('x') })).status === 403, 'signed URL works only once');
+  ok(!(await fetch(slot.json.upload_url, { method: 'PUT', headers: { 'Content-Type': 'audio/webm' }, body: Buffer.from('x') })).ok, 'signed URL cannot overwrite the file');
   ok((await (await fetch(slot.json.public_url)).text()) === 'abcd', 'uploaded file is served back');
   const withLink = await call('POST', `/api/boards/${b.id}/comments`, { message: 'voice', audio: slot.json.public_url });
   ok(withLink.status === 201 && withLink.json.audio === slot.json.public_url, 'note keeps an uploaded file link');
   const withData = await call('POST', `/api/boards/${b.id}/comments`, { message: 'old client', gif: PNG, audio: WAV });
-  const prefix = slot.json.public_url.slice(0, slot.json.public_url.indexOf('/__media/') + 9);
+  const prefix = slot.json.public_url.slice(0, slot.json.public_url.indexOf('uploads/'));
   ok(withData.status === 201 && withData.json.gif.startsWith(prefix) && withData.json.audio.startsWith(prefix), 'base64 media from older clients moves into storage');
   ok((await call('POST', `/api/boards/${b.id}/comments`, { message: 'x', gif: 'https://evil.example/pixel.gif' })).status === 400, 'outside media links rejected');
   ok((await call('POST', `/api/boards/${b.id}/comments`, { message: 'x', audio: PNG })).status === 400, 'image sent as audio rejected');
@@ -90,13 +92,15 @@ const WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACA
   ok((await call('PATCH', `/api/boards/${b.id}/comments/nope`, { hidden: true }, { key })).status === 404, 'hide unknown note is 404');
 
   // 6. Walls made before creator keys
-  const old = (await call('POST', '/__test/legacy-board', {})).json;
-  const oldRead = await call('GET', `/api/boards/${old.id}`);
-  ok(oldRead.json.view_token === old.view_token && oldRead.json.can_moderate === false, 'legacy board reads unchanged');
-  ok((await call('GET', `/api/boards/${old.id}/comments`)).status === 200, 'legacy board notes still listable');
-  const oldNote = await call('POST', `/api/boards/${old.id}/comments`, { message: 'still works' });
-  ok(oldNote.status === 201, 'legacy board accepts notes');
-  ok((await call('DELETE', `/api/boards/${old.id}/comments/${oldNote.json.id}`)).status === 403, 'legacy board notes cannot be deleted anonymously');
+  if (HOOKS) {
+    const old = (await call('POST', '/__test/legacy-board', {})).json;
+    const oldRead = await call('GET', `/api/boards/${old.id}`);
+    ok(oldRead.json.view_token === old.view_token && oldRead.json.can_moderate === false, 'legacy board reads unchanged');
+    ok((await call('GET', `/api/boards/${old.id}/comments`)).status === 200, 'legacy board notes still listable');
+    const oldNote = await call('POST', `/api/boards/${old.id}/comments`, { message: 'still works' });
+    ok(oldNote.status === 201, 'legacy board accepts notes');
+    ok((await call('DELETE', `/api/boards/${old.id}/comments/${oldNote.json.id}`)).status === 403, 'legacy board notes cannot be deleted anonymously');
+  } else console.log('SKIP legacy-wall checks (need test hooks)');
 
   // 7. Reports (from the reveal)
   const target = (await call('POST', `/api/boards/${b.id}/comments`, { author: 'Troll', message: 'mean' })).json;
@@ -135,8 +139,10 @@ const WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACA
   ok(JSON.stringify(styled.json.stickers) === '["heart","star","crown"]', 'stickers deduped, filtered, capped at 3');
   const locked = await call('GET', `/api/boards/view/${nb.view_token}`);
   ok(locked.json.locked === true && locked.json.comments.length === 0 && locked.json.comment_count === 1, 'future unlock hides notes');
-  await call('POST', `/__test/unlock/${nb.id}`, { unlock_at: '2000-01-01T00:00:00.000Z' });
-  ok((await call('GET', `/api/boards/view/${nb.view_token}`)).json.comments.length === 1, 'past unlock shows notes');
+  if (HOOKS) {
+    await call('POST', `/__test/unlock/${nb.id}`, { unlock_at: '2000-01-01T00:00:00.000Z' });
+    ok((await call('GET', `/api/boards/view/${nb.view_token}`)).json.comments.length === 1, 'past unlock shows notes');
+  } else console.log('SKIP unlock-date change (needs test hooks)');
   for (const url of ['/api/boards/nope', '/api/boards/code/ZZZZZZ', '/api/boards/view/nope', '/api/boards/nope/stats', '/api/boards/nope/comments']) ok((await call('GET', url)).status === 404, '404 ' + url);
   ok((await call('POST', '/api/boards/nope/comments', { message: 'x' })).status === 404, '404 note on unknown board');
   const page = await fetch(base + '/index.html?view=abc');

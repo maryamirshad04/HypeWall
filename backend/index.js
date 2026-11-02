@@ -9,7 +9,10 @@ const { createSupabaseMedia } = require('./media/supabase');
 // Always read backend/.env, whatever directory the server was started from
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
-const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
+const { SUPABASE_SERVICE_ROLE_KEY } = process.env;
+// Accept a pasted REST URL like https://ref.supabase.co/rest/v1/ by keeping only the origin
+let SUPABASE_URL = null;
+try { SUPABASE_URL = new URL(process.env.SUPABASE_URL).origin; } catch { /* reported below */ }
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.error('\n❌ SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set.');
   console.error('   Create backend/.env with (Supabase dashboard > Project Settings > API):\n');

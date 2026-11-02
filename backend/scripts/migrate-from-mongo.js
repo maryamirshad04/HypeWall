@@ -20,7 +20,9 @@ const { boardSettings, noteSettings, cleanText, cleanColor, TEXT_LIMITS } = requ
 
 const DRY_RUN = process.argv.includes('--dry-run');
 const BATCH = 100;
-const { MONGODB_URI, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } = process.env;
+const { MONGODB_URI, SUPABASE_SERVICE_ROLE_KEY } = process.env;
+// Keep only the origin, in case a REST URL (…/rest/v1/) was pasted
+const SUPABASE_URL = (() => { try { return new URL(process.env.SUPABASE_URL).origin; } catch { return undefined; } })();
 
 const EXT = { 'image/gif': 'gif', 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'audio/mpeg': 'mp3', 'audio/mp4': 'm4a', 'audio/x-m4a': 'm4a', 'audio/ogg': 'ogg', 'audio/wav': 'wav', 'audio/webm': 'webm' };
 const stats = { boards: 0, comments: 0, reports: 0, media: 0, skipped: [] };

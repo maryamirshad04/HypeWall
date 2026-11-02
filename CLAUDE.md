@@ -16,12 +16,20 @@ Tone of voice: playful, lowercase, quirky, Gen-Z. No em dashes in UI copy.
 | Layer | Tech |
 | --- | --- |
 | Frontend | Vanilla HTML/CSS + native ES modules, no build step, no framework |
-| Backend | Node **Express** + **MongoDB** (`backend/index.js`). The README still says Flask; that is outdated |
+| Backend | Node **Express** (`backend/app.js`) on **Supabase**: Postgres for data, Storage for media |
 | Hosting | Vercel (`vercel.json`) |
 | Fonts | Bricolage Grotesque (display), DM Sans (body), Caveat (handwriting), Permanent Marker |
 
-Run locally: `cd backend && npm install && node index.js` with `backend/.env` containing
-`MONGODB_URI=...` (the server exits without it). Serves the frontend and API on `http://localhost:5000`.
+Run locally (`backend/`):
+- `npm run dev:memory`: no database, in-memory store + media (resets on restart).
+- `npm start`: real Supabase. Needs `backend/.env` with `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`
+  (see `.env.example`); `index.js` keeps only the URL's origin, so a pasted `…/rest/v1/` URL is fine.
+- `npm test`: boots the in-memory server with test hooks and runs `tests/api.test.js` (80+ checks).
+  The same file runs against a live server with `node tests/api.test.js <port>`; hook-only checks skip.
+
+Database setup lives in `supabase/migrations/` (run in the Supabase SQL editor). Row level security
+is on with **no policies**: only the service role (our API) can touch tables. Never ship the service
+role key to the browser.
 
 ## Compatibility rules (do not break)
 
@@ -32,21 +40,43 @@ Run locally: `cd backend && npm install && node index.js` with `backend/.env` co
   validated in `backend/validation.js`; unknown values fall back to defaults, and documents created
   before a field existed must behave as before (e.g. no `unlock_at` = never locked,
   missing `allow_anonymous` = anonymous allowed).
-- Request bodies are capped at 4.5 MB by Vercel. Media is stored inline as base64, so the client caps
-  GIFs at 1.5 MB, audio at 2 MB, combined payload at 4 MB (`frontend/scripts/lib/media.js`).
+- Media no longer travels through the API. The browser asks `POST /api/uploads` for a signed slot,
+  PUTs the file straight to the `media` bucket, then sends the public link. The API only accepts
+  links into our own bucket; base64 data URLs from older clients are still accepted and moved into
+  Storage server-side (JSON bodies stay capped at 4.5 MB by Vercel). Files: 10 MB, images/audio only.
 
-## Data model (MongoDB, db `genzkudo`)
+## Data model (Supabase Postgres, `supabase/migrations/20261102000000_init.sql`)
 
-**boards**: `id`, `aesthetic` (vibe id), `recipient_name` (max 60), `bg_image`, `bg_audio`,
-`join_code`, `view_token`, `created_at`, `contributor_link`, `view_link`, `creator_key_hash`
-(SHA-256 of the creator key; boards made before keys existed have none), plus optional settings
-`occasion`, `wrapper`, `reveal_style`, `bg_choice`, `music_track`, `unlock_at`, `allow_anonymous`.
+**boards**: `id` (uuid), `aesthetic` (vibe id), `recipient_name` (max 60), `bg_image`, `bg_audio`
+(Storage URLs), `join_code` (unique), `view_token` (uuid, unique), `creator_key_hash` (SHA-256; null
+for walls made before keys), optional settings `occasion`, `wrapper`, `reveal_style`, `bg_choice`,
+`music_track`, `unlock_at`, plus `allow_anonymous`, `contributor_link`, `view_link`, `created_at`.
+Settings are null on migrated old walls; the frontend reads null as the default.
 
-**comments**: `id`, `board_id`, `author` (max 60), `message` (max 1000), `color` (hex), `gif`,
-`audio`, `created_at`, optional `font`, `shape`, `stickers` (max 3), and `hidden` (moderation).
+**comments**: `id`, `board_id` (cascade delete), `author` (max 60), `message` (max 1000), `color`
+(hex), `gif`, `audio` (Storage URLs), `font`, `shape`, `stickers` (text[], max 3), `hidden`, `created_at`.
 
 **reports**: `id`, `board_id`, `comment_id`, `reason`, `created_at`.
-**rate_limits**: fixed-window counters with a TTL index on `expiresAt`.
+**rate_limits**: fixed-window counters, bumped atomically by the `hit_rate_limit(key, expires_at)`
+SQL function, which also sweeps expired rows now and then.
+
+## Backend layout (`backend/`)
+
+```
+index.js                 entry (Vercel + npm start): env checks, Supabase client, createApp
+app.js                   createApp({ store, media }): every route
+store/supabase.js        data access on Postgres; store/memory.js is the same interface in memory
+media/supabase.js        Storage: signed upload slots, server-side uploads; media/memory.js mirrors it
+media/files.js           allowed types, 10 MB cap, object paths, data URL parsing
+security.js              creator keys, client IP, rate limits, honeypot
+validation.js            option whitelists, text caps, defaults
+scripts/dev-memory.js    database-free server (+ test hooks with HYPEWALL_TEST_HOOKS=1)
+scripts/migrate-from-mongo.js   one-time copy of old MongoDB walls (dry run supported)
+tests/                   run.js + api.test.js
+```
+
+Routes only talk to `store` and `media`, never to Supabase directly, so a new store must implement
+the same interface (see `store/memory.js` for the smallest version).
 
 ## Creator keys and access (backend/security.js)
 
@@ -62,6 +92,7 @@ Run locally: `cd backend && npm install && node index.js` with `backend/.env` co
 
 | Method | Route | Access / notes |
 | --- | --- | --- |
+| POST | `/uploads` | `{ kind: "image" or "audio", content_type, size }` → `{ upload_url, public_url }`; 40/10 min/IP |
 | POST | `/boards` | rate limited (10/hour/IP), honeypot; returns `creator_key` once |
 | GET | `/boards/code/:code` | public fields only (never `view_token`) |
 | GET | `/boards/view/:view_token` | recipient wall; hidden notes left out; locked walls return `comments: []`, `comment_count`, `locked: true` |
@@ -89,7 +120,7 @@ scripts/
   config/catalog.js        every pickable option: occasions, vibes + background library,
                            reveal styles, wrappers, music tracks, note colours/fonts/shapes, stickers
   lib/dom.js               esc(), $, $$, on() delegation, createScope() for view teardown
-  lib/media.js             uploads -> data URLs with size caps
+  lib/media.js             picked files -> local previews (blob:), uploaded to Storage on submit
   lib/music.js             createMusic({src|trackId}); library tracks are synthesised (Web Audio)
   lib/recorder.js          MediaRecorder voice notes (60 s max)
   lib/toast.js             non-blocking messages (no alert())

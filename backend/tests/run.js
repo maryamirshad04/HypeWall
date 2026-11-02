@@ -11,7 +11,7 @@ const server = spawn(process.execPath, [path.join(__dirname, '../scripts/dev-mem
 
 server.stdout.on('data', (chunk) => {
   if (!String(chunk).includes('HypeWall (in-memory)')) return;
-  const tests = spawn(process.execPath, [path.join(__dirname, 'api.test.js'), PORT], { stdio: 'inherit' });
+  const tests = spawn(process.execPath, [path.join(__dirname, 'api.test.js'), PORT], { stdio: 'inherit', env: { ...process.env, HYPEWALL_TEST_HOOKS: '1' } });
   tests.on('exit', (code) => { server.kill(); process.exit(code); });
 });
 server.on('exit', (code) => { if (code) process.exit(code); });
