@@ -1,20 +1,24 @@
 {
   "name": "genzkudo-backend",
-  "version": "1.0.0",
-  "description": "GenzKudo Express + MongoDB backend",
+  "version": "2.0.0",
+  "description": "HypeWall API: Express + Supabase (Postgres + Storage)",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "dev:memory": "node scripts/dev-memory.js",
+    "test": "node tests/run.js",
+    "migrate:mongo": "node scripts/migrate-from-mongo.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "mongodb": "^6.5.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "mongodb": "^6.5.0",
     "nodemon": "^3.1.0"
   }
 }

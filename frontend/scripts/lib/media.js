@@ -1,29 +1,20 @@
-// Uploads become data URLs that travel inside the JSON body.
-// Vercel caps a request body at 4.5MB and base64 adds ~33%, so raw files stay
-// well under that ceiling.
+// Picked files are kept locally (with a blob: URL for previews) until the form
+// is submitted, then uploaded straight to Supabase Storage through a signed
+// URL from the API. Nothing heavy travels through our own server.
+//
+//   const local = await prepareImage(file);   // { blob, url, kind }
+//   const link = await uploadLocal(local);    // public Storage URL
 
-export const LIMITS = {
-  audioBytes: 2 * 1024 * 1024,      // 2MB  -> ~2.7MB encoded
-  gifBytes: 1.5 * 1024 * 1024,      // 1.5MB -> ~2MB encoded
-  totalEncodedBytes: 4 * 1024 * 1024,
-  imageMaxDimension: 1400,
-};
+import { api } from '../api.js';
 
-export function encodedSize(dataUrl) {
-  return dataUrl ? Math.ceil(dataUrl.length * 0.75) : 0;
-}
+export const MAX_BYTES = 10 * 1024 * 1024; // matches the Storage bucket limit
+const IMAGE_MAX_DIMENSION = 1600;
 
-export function totalTooLarge(...dataUrls) {
-  return dataUrls.reduce((sum, url) => sum + encodedSize(url), 0) > LIMITS.totalEncodedBytes;
-}
+const tooBig = () => new Error('That file is too large (max 10MB). Try a smaller one!');
+const local = (blob, kind) => ({ blob, kind, url: URL.createObjectURL(blob) });
 
-export function fileToDataUrl(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error('Could not read that file.'));
-    reader.readAsDataURL(file);
-  });
+export function release(file) {
+  if (file?.url) URL.revokeObjectURL(file.url);
 }
 
 function loadImage(src) {
@@ -35,29 +26,43 @@ function loadImage(src) {
   });
 }
 
-// GIFs pass through untouched (to keep the animation); stills are downscaled to JPEG
-export async function imageToDataUrl(file) {
-  if (!file.type.startsWith('image/')) throw new Error('That is not an image.');
-  if (file.type === 'image/gif') {
-    if (file.size > LIMITS.gifBytes) throw new Error('That GIF is too large (max 1.5MB). Try a smaller one!');
-    return fileToDataUrl(file);
+// GIFs keep their animation; other images are downscaled and re-encoded as JPEG
+export async function prepareImage(file) {
+  if (!/^image\/(gif|jpeg|png|webp)$/i.test(file.type)) throw new Error('Pick a GIF, JPG, PNG or WebP image.');
+  if (file.size > MAX_BYTES) throw tooBig();
+  if (file.type === 'image/gif') return local(file, 'image');
+
+  const source = URL.createObjectURL(file);
+  try {
+    const img = await loadImage(source);
+    const scale = Math.min(1, IMAGE_MAX_DIMENSION / Math.max(img.width, img.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.85));
+    return local(blob, 'image');
+  } finally {
+    URL.revokeObjectURL(source);
   }
-
-  const img = await loadImage(await fileToDataUrl(file));
-  const scale = Math.min(1, LIMITS.imageMaxDimension / Math.max(img.width, img.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(img.width * scale);
-  canvas.height = Math.round(img.height * scale);
-  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL('image/jpeg', 0.82);
 }
 
-export async function audioToDataUrl(file) {
-  if (!file.type.startsWith('audio/')) throw new Error('That is not an audio file.');
-  if (file.size > LIMITS.audioBytes) throw new Error('That audio is too large (max 2MB). Try a shorter clip!');
-  return fileToDataUrl(file);
+export function prepareAudio(fileOrBlob) {
+  if (!/^audio\//i.test(fileOrBlob.type)) throw new Error('That is not an audio file.');
+  if (fileOrBlob.size > MAX_BYTES) throw tooBig();
+  return local(fileOrBlob, 'audio');
 }
 
-export function blobToDataUrl(blob) {
-  return fileToDataUrl(blob);
+// Uploads a prepared file and returns its public link (null when there is no file)
+export async function uploadLocal(file) {
+  if (!file) return null;
+  const slot = await api.requestUpload(file.kind, file.blob.type, file.blob.size);
+  let response;
+  try {
+    response = await fetch(slot.upload_url, { method: 'PUT', headers: { 'Content-Type': file.blob.type }, body: file.blob });
+  } catch {
+    response = null;
+  }
+  if (!response?.ok) throw new Error('Upload failed. Check your connection and try again.');
+  return slot.public_url;
 }

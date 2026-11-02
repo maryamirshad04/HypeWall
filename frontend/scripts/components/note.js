@@ -16,8 +16,8 @@ function isDark(hex) {
 }
 
 const safeColor = (hex) => (/^#[0-9a-f]{3,8}$/i.test(hex || '') ? hex : '#FFE066');
-// Only data URLs, http(s) links and our own images/ folder may be media sources
-const safeSrc = (src) => (typeof src === 'string' && /^(data:(image|audio)\/|https?:\/\/|images\/)/i.test(src) ? src : null);
+// Only our Storage links (https), local previews (blob:), legacy data URLs and our images/ folder
+const safeSrc = (src) => (typeof src === 'string' && /^(https?:\/\/|blob:|data:(image|audio)\/|images\/)/i.test(src) ? src : null);
 
 export function audioPlayer(src, label = 'voice note') {
   return `
