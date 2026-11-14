@@ -2,7 +2,7 @@ import { slimNav } from '../components/nav.js';
 import { noteCard, bindAudioPlayers } from '../components/note.js';
 import { api } from '../api.js';
 import { $, $$, esc, on } from '../lib/dom.js';
-import { imageToDataUrl, audioToDataUrl, totalTooLarge } from '../lib/media.js';
+import { prepareImage, prepareAudio, uploadLocal, release } from '../lib/media.js';
 import { canRecord, startRecording, MAX_SECONDS } from '../lib/recorder.js';
 import { toast } from '../lib/toast.js';
 import { honeypotField, honeypotValue } from '../components/honeypot.js';
@@ -13,6 +13,7 @@ const SEND = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke
 const MIC = '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
 const IMAGE = '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>';
 
+// gif / audio hold local files ({ blob, url }) until the note is posted
 const freshDraft = (author = '') => ({ message: '', author, color: NOTE_COLORS[0].hex, font: 'hand', shape: 'sticky', stickers: [], gif: null, audio: null });
 
 export async function render(root, { boardId }, scope) {
@@ -27,6 +28,7 @@ export async function render(root, { boardId }, scope) {
   const needsName = board.allow_anonymous === false;
   const name = esc(board.recipient_name);
   let draft = freshDraft();
+  scope.add(() => { release(draft.gif); release(draft.audio); });
   let recording = null;
   scope.add(() => recording?.stop().catch(() => {}));
 
@@ -126,7 +128,7 @@ export async function render(root, { boardId }, scope) {
   const author = $('#noteAuthor', root);
 
   function refreshPreview() {
-    const shown = { ...draft, message: draft.message || 'your message shows up here', author: draft.author || (needsName ? 'you' : 'Anonymous') };
+    const shown = { ...draft, gif: draft.gif?.url, audio: draft.audio?.url, message: draft.message || 'your message shows up here', author: draft.author || (needsName ? 'you' : 'Anonymous') };
     slot('preview').innerHTML = noteCard(shown, { className: 'preview-tilt' });
     slot('media-label').textContent = draft.gif ? 'Image added. Pick another?' : 'Add a GIF or a photo';
     $('[data-remove="gif"]', root).classList.toggle('hidden', !draft.gif);
@@ -172,8 +174,10 @@ export async function render(root, { boardId }, scope) {
     const file = input.files[0];
     if (!file) return;
     try {
-      if (input.dataset.upload === 'gif') draft.gif = await imageToDataUrl(file);
-      else draft.audio = await audioToDataUrl(file);
+      const kind = input.dataset.upload;
+      const prepared = kind === 'gif' ? await prepareImage(file) : prepareAudio(file);
+      release(draft[kind]);
+      draft[kind] = prepared;
       refreshPreview();
     } catch (error) {
       toast(error.message, 'error');
@@ -181,6 +185,7 @@ export async function render(root, { boardId }, scope) {
     input.value = '';
   }));
   scope.add(on(root, 'click', '[data-remove]', (event, btn) => {
+    release(draft[btn.dataset.remove]);
     draft[btn.dataset.remove] = null;
     refreshPreview();
   }));
@@ -189,8 +194,9 @@ export async function render(root, { boardId }, scope) {
     if (recording) {
       btn.disabled = true;
       try {
-        const { dataUrl } = await recording.stop();
-        draft.audio = dataUrl;
+        const { blob } = await recording.stop();
+        release(draft.audio);
+        draft.audio = prepareAudio(blob);
       } catch (error) {
         toast(error.message, 'error');
       }
@@ -226,12 +232,12 @@ export async function render(root, { boardId }, scope) {
       toast('This wall needs a name on every note.', 'error');
       return author.focus();
     }
-    if (totalTooLarge(note.gif, note.audio)) return toast('Your image and voice note are too large together. Try smaller files.', 'error');
 
     const post = slot('post');
     post.disabled = true;
     try {
-      await api.addComment(board.id, { ...note, author: note.author || 'Anonymous', website: honeypotValue(event.target) });
+      const [gif, audio] = await Promise.all([uploadLocal(draft.gif), uploadLocal(draft.audio)]);
+      await api.addComment(board.id, { ...note, gif, audio, author: note.author || 'Anonymous', website: honeypotValue(event.target) });
       $('.preview-tilt', root)?.classList.add('fly-away');
       scope.timeout(showSent, 900);
     } catch (error) {
@@ -251,6 +257,8 @@ export async function render(root, { boardId }, scope) {
   }
 
   scope.add(on(root, 'click', '[data-another]', () => {
+    release(draft.gif);
+    release(draft.audio);
     draft = freshDraft(draft.author);
     message.value = '';
     slot('post').disabled = false;

@@ -40,27 +40,47 @@ live. On phones it becomes a one-note-at-a-time deck.
 
 - **Frontend:** vanilla HTML, CSS and JavaScript (native ES modules, no build step)
 - **Backend:** Node.js + Express
-- **Database:** MongoDB
+- **Database + file storage:** Supabase (Postgres + Storage)
 - **Hosting:** Vercel
 
 ## 🛠 Running locally
 
+**Without a database** (everything lives in memory and resets on restart, great for UI work):
+
 ```bash
 cd backend
 npm install
-node index.js
+npm run dev:memory
 ```
 
-Create `backend/.env` first:
+**With Supabase:**
 
-```
-MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/genzkudo
+1. In your Supabase project, open **SQL Editor** and run
+   `supabase/migrations/20261102000000_init.sql` (tables, security, rate limits, the `media` bucket).
+2. Copy `backend/.env.example` to `backend/.env` and fill in `SUPABASE_URL` and
+   `SUPABASE_SERVICE_ROLE_KEY` (Project Settings → API). The service role key is server-only.
+3. Run it:
+
+```bash
+cd backend
+npm install
+npm start
 ```
 
 Then open http://localhost:5000. The same server serves the site and the API.
 
+**Tests:** `npm test` runs the full API suite against the in-memory store.
+
+**Deploying:** add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to the Vercel project's
+environment variables.
+
+**Old MongoDB data:** `npm run migrate:mongo -- --dry-run`, then `npm run migrate:mongo`
+(needs `MONGODB_URI` in `backend/.env`). It copies every wall, note and report, moves base64
+media into Storage, and is safe to re-run.
+
 ## 🔐 Safety and privacy
 
+- Photos, GIFs, voice notes and music upload straight to Supabase Storage (up to 10MB each).
 - Only the creator's private link can see notes before the reveal, or hide and delete them.
   The key in that link is stored hashed.
 - Contributors only ever see the note count.

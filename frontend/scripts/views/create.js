@@ -4,7 +4,7 @@ import { wrapperIcon } from '../components/wrappers.js';
 import { api } from '../api.js';
 import { navigate } from '../router.js';
 import { $, $$, esc, on } from '../lib/dom.js';
-import { imageToDataUrl, audioToDataUrl, totalTooLarge } from '../lib/media.js';
+import { prepareImage, prepareAudio, uploadLocal, release } from '../lib/media.js';
 import { createMusic } from '../lib/music.js';
 import { toast } from '../lib/toast.js';
 import { rememberKey } from '../lib/creatorKeys.js';
@@ -33,9 +33,9 @@ export function render(root, params, scope) {
     occasion: 'birthday',
     vibe: startVibe,
     bg: findVibe(startVibe).bg[0][0], // library choice, or 'custom' for an uploaded photo
-    bgImage: null,
+    bgImage: null,                    // { blob, url } until uploaded on submit
     track: TRACKS[0].id,              // a library id, 'upload' or 'none'
-    bgAudio: null,
+    bgAudio: null,                    // { blob, url } until uploaded on submit
     bgAudioName: '',
     reveal: 'solitaire',
     wrapper: 'gift',
@@ -45,6 +45,7 @@ export function render(root, params, scope) {
   };
   let preview = null; // music preview player
   scope.add(() => preview?.destroy());
+  scope.add(() => { release(state.bgImage); release(state.bgAudio); });
 
   const vibeTiles = () => VIBES.map((v) =>
     option('vibe', v.id, state.vibe, `<span>${v.label}</span>`, `vibe-tile wallpaper ${backgroundClass(v.id, v.bg[0][0])}`)).join('');
@@ -53,7 +54,7 @@ export function render(root, params, scope) {
     const vibe = findVibe(state.vibe);
     const items = vibe.bg.map(([id, label]) => option('bg', id, state.bg, `<span>${label}</span>`, `lib-item wallpaper ${backgroundClass(vibe.id, id)}`)).join('');
     const custom = state.bgImage
-      ? `<button type="button" class="lib-item wallpaper" data-group="bg" data-value="custom" aria-pressed="${state.bg === 'custom'}" style="background-image:url('${state.bgImage}')"><span>Your photo</span></button>`
+      ? `<button type="button" class="lib-item wallpaper" data-group="bg" data-value="custom" aria-pressed="${state.bg === 'custom'}" style="background-image:url('${state.bgImage.url}')"><span>Your photo</span></button>`
       : '';
     return `${items}${custom}
       <label class="lib-item lib-upload">
@@ -158,7 +159,7 @@ export function render(root, params, scope) {
   function refreshPreview({ stage = false } = {}) {
     const bg = slot('preview-bg');
     bg.className = `preview-card wallpaper ${state.bg === 'custom' ? '' : backgroundClass(state.vibe, state.bg)}`;
-    bg.style.backgroundImage = state.bg === 'custom' && state.bgImage ? `url("${state.bgImage}")` : '';
+    bg.style.backgroundImage = state.bg === 'custom' && state.bgImage ? `url("${state.bgImage.url}")` : '';
     slot('name').textContent = state.name.trim() || 'their name';
     slot('occasion-label').textContent = findOccasion(state.occasion).label;
     slot('track-label').textContent = trackLabel();
@@ -187,7 +188,7 @@ export function render(root, params, scope) {
     preview?.destroy();
     preview = null;
     if (replay || id === 'none') return refreshEq();
-    const player = createMusic(id === 'upload' ? { src: state.bgAudio } : { trackId: id });
+    const player = createMusic(id === 'upload' ? { src: state.bgAudio?.url } : { trackId: id });
     if (!player) return refreshEq();
     player.id = id;
     preview = player;
@@ -229,11 +230,13 @@ export function render(root, params, scope) {
     if (!file) return;
     try {
       if (input.dataset.upload === 'bg') {
-        state.bgImage = await imageToDataUrl(file);
+        release(state.bgImage);
+        state.bgImage = await prepareImage(file);
         state.bg = 'custom';
         refreshLibrary();
       } else {
-        state.bgAudio = await audioToDataUrl(file);
+        release(state.bgAudio);
+        state.bgAudio = prepareAudio(file);
         state.bgAudioName = file.name;
         state.track = 'upload';
         refreshUploadTrack();
@@ -263,17 +266,14 @@ export function render(root, params, scope) {
       toast('Pick an unlock date in the future, or turn the secret off.', 'error');
       return unlockInput.focus();
     }
-    const bgImage = state.bg === 'custom' ? state.bgImage : null;
-    const bgAudio = state.track === 'upload' ? state.bgAudio : null;
-    if (totalTooLarge(bgImage, bgAudio)) {
-      toast('Your photo and music are too large together. Try a smaller image or a shorter track.', 'error');
-      return;
-    }
-
     const submit = $('.create-submit', root);
     submit.disabled = true;
     submit.textContent = 'Creating...';
     try {
+      const [bgImage, bgAudio] = await Promise.all([
+        uploadLocal(state.bg === 'custom' ? state.bgImage : null),
+        uploadLocal(state.track === 'upload' ? state.bgAudio : null),
+      ]);
       const board = await api.createBoard({
         aesthetic: state.vibe,
         recipient_name: name,

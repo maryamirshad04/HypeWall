@@ -32,6 +32,7 @@ const note = (boardId, noteId) => `${board(boardId)}/comments/${encodeURICompone
 
 export const api = {
   createBoard: (settings) => post('/boards', settings),
+  requestUpload: (kind, contentType, size) => post('/uploads', { kind, content_type: contentType, size }),
   getBoard: (boardId, key) => request(board(boardId), { key }),
   getBoardByCode: (code) => request(`/boards/code/${encodeURIComponent(code.toUpperCase())}`),
   getBoardByViewToken: (token) => request(`/boards/view/${encodeURIComponent(token)}`),

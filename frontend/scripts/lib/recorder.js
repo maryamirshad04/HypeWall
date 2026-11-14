@@ -1,6 +1,6 @@
 // In-browser voice note recording with MediaRecorder.
 
-import { blobToDataUrl, LIMITS } from './media.js';
+import { MAX_BYTES } from './media.js';
 
 export const MAX_SECONDS = 60;
 
@@ -27,12 +27,12 @@ export async function startRecording({ onTick } = {}) {
   }, 1000);
 
   const finished = new Promise((resolve, reject) => {
-    recorder.addEventListener('stop', async () => {
+    recorder.addEventListener('stop', () => {
       clearInterval(ticker);
       stream.getTracks().forEach((t) => t.stop());
       const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
-      if (blob.size > LIMITS.audioBytes) return reject(new Error('That recording is too long. Keep it under a minute.'));
-      resolve({ dataUrl: await blobToDataUrl(blob), seconds });
+      if (blob.size > MAX_BYTES) return reject(new Error('That recording is too long. Keep it under a minute.'));
+      resolve({ blob, seconds });
     });
   });
 
